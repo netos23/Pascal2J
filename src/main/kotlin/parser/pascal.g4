@@ -8,7 +8,8 @@ program_heading : PROGRAM identifier (OP program_parameter_list CP)?;
 program_parameter_list : identifier_list;
 program_block : block;
 
-label_decl : LABEL LABEL_VALUE (C LABEL_VALUE)* SC;
+label_decl : LABEL label (C label)* SC;
+label : UNSIGNED_INTEGER;
 
 const_decl : CONST const_def (SC const_def)* SC;
 const_def : identifier EQ constant;
@@ -47,11 +48,12 @@ identifier_list : identifier (C identifier)*;
 subrange_type : constant SQ constant;
 
 constant
-	: SIGNED_NUMBER
-	| LABEL_VALUE
-	| SIGN? identifier
+	: sign? unsigned_number
+	| sign? identifier
 	| STRING
 	;
+
+sign : PLUS | MINUS;
 
 new_structured_type : PACKED? unpacked_structured_type;
 
@@ -387,7 +389,7 @@ expression
 	;
 
 simple_expression
-	: SIGN? term (adding_operator term)*
+	: sign? term (adding_operator term)*
 	;
 
 term
@@ -420,11 +422,8 @@ constant_identifier
 	;
 
 unsigned_number
-	: UNSIGNED_NUMBER
-	| UNSIGNED_INTEGER
+	: UNSIGNED_INTEGER
 	| UNSIGNED_REAL
-	| SIGNED_NUMBER
-	| LABEL_VALUE
 	;
 
 set_constructor
@@ -432,7 +431,7 @@ set_constructor
 	;
 
 member_designator
-	: expression ((SQ | D) expression)?
+	: expression (SQ expression)?
 	;
 
 relational_operator
@@ -446,8 +445,7 @@ relational_operator
 	;
 
 adding_operator
-	: SIGN
-	| PLUS
+	: PLUS
 	| MINUS
 	| OR
 	;
@@ -514,33 +512,8 @@ structured_type_identifier
 
 
 
-LABEL_VALUE: DIGIT_SEQUENCE;
-
-SIGNED_NUMBER
-	: SIGNED_INTEGER
-	| SIGNED_REAL
-	;
-
-SIGNED_REAL
-	: SIGN? UNSIGNED_REAL
-	;
-
-SIGNED_INTEGER
-	: SIGN? UNSIGNED_INTEGER
-	;
-
-UNSIGNED_NUMBER
-	: UNSIGNED_INTEGER
-	| UNSIGNED_REAL
-	;
-
-SIGN
-	: PLUS
-	| MINUS
-	;
-
 UNSIGNED_REAL
-	: DIGIT_SEQUENCE (D FRACTIONAL_PART)? (E SCALE_FACTOR)?
+	: DIGIT_SEQUENCE (D FRACTIONAL_PART (E SCALE_FACTOR)? | E SCALE_FACTOR)
 	;
 
 UNSIGNED_INTEGER
@@ -552,7 +525,7 @@ fragment FRACTIONAL_PART
 	;
 
 fragment SCALE_FACTOR
-	: SIGN? DIGIT_SEQUENCE
+	: ('+' | '-')? DIGIT_SEQUENCE
 	;
 
 fragment DIGIT_SEQUENCE
@@ -561,7 +534,7 @@ fragment DIGIT_SEQUENCE
 fragment E: 'e';
 
 STRING
-	: '\'' (STRING_ESCAPE | ~['\r\n])* '\''
+	: '\'' (STRING_ESCAPE | ~['\r\n])+ '\''
 	;
 
 fragment STRING_ESCAPE
@@ -631,11 +604,7 @@ LETTER : [a-z];
 DIGIT : [0-9];
 
 WS          :   ( ' ' | '\t' | '\n' | '\r' )+ -> skip ;
-COMMENT_1
-	: '{'.*? '}'
-	-> skip
-	;
-COMMENT_2
-	: '(*' .*? '*)'
+COMMENT
+	: ('{' | '(*') .*? ('}' | '*)')
 	-> skip
 	;
