@@ -1,0 +1,1479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pascal2J — A Compiler Construction Roadmap</title>
+<style>
+@page { size: A4; margin: 17mm 16mm 16mm 16mm; }
+
+:root{
+  --ink:#15171c;
+  --muted:#5a6170;
+  --rule:#d7dbe3;
+  --accent:#2d3f8f;
+  --accent-soft:#eef1fa;
+  --q:#7a4b00;
+  --q-soft:#fdf4e4;
+  --task:#14532d;
+  --task-soft:#eaf5ee;
+  --trap:#8a1c2b;
+  --trap-soft:#fbeef0;
+  --code-bg:#f5f6f8;
+}
+
+html{ font-size: 10.4pt; }
+body{
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  line-height: 1.46;
+  margin:0;
+  hyphens:auto;
+}
+h1,h2,h3,h4,.sans{ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+/* ---------- cover ---------- */
+.cover{ height: 245mm; display:flex; flex-direction:column; justify-content:center; break-after:page; }
+.cover .kicker{ font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; letter-spacing:.22em; text-transform:uppercase; font-size:8.5pt; color:var(--accent); font-weight:700; }
+.cover h1{ font-size:33pt; line-height:1.06; margin:.35em 0 .1em; letter-spacing:-.02em; }
+.cover h1 small{ display:block; font-size:15pt; font-weight:400; color:var(--muted); letter-spacing:0; margin-top:.55em; line-height:1.35; }
+.cover .rule{ height:3px; background:var(--accent); width:74mm; margin:9mm 0 8mm; }
+.cover dl{ display:grid; grid-template-columns: 32mm 1fr; gap:2.2mm 5mm; font-size:9.6pt; margin:0; }
+.cover dt{ font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:8pt; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); padding-top:.25em;}
+.cover dd{ margin:0; }
+.cover .foot{ margin-top:14mm; font-size:9pt; color:var(--muted); border-top:1px solid var(--rule); padding-top:4mm; }
+
+/* ---------- structure ---------- */
+.part{ break-before:page; }
+h2.part-title{
+  font-size:19pt; margin:0 0 1mm; letter-spacing:-.01em; line-height:1.15;
+}
+.part-num{
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:8pt; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--accent);
+}
+.part-lede{ color:var(--muted); font-size:10pt; margin:2mm 0 6mm; border-bottom:1px solid var(--rule); padding-bottom:4mm; }
+h3{ font-size:12.4pt; margin:7mm 0 2mm; letter-spacing:-.005em; }
+h4{ font-size:10pt; margin:5mm 0 1.5mm; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); }
+p{ margin:0 0 2.6mm; }
+ul,ol{ margin:0 0 3mm; padding-left:5.5mm; }
+li{ margin-bottom:1.1mm; }
+strong{ font-weight:700; }
+code{ font-family:"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace; font-size:8.6pt; background:var(--code-bg); padding:.5pt 2pt; border-radius:2px; }
+pre{ font-family:"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace; font-size:8.1pt; line-height:1.42;
+     background:var(--code-bg); border-left:2.5px solid var(--accent); padding:2.6mm 3.2mm; margin:2.5mm 0 3.5mm;
+     white-space:pre-wrap; break-inside:avoid; border-radius:0 3px 3px 0; }
+pre code{ background:none; padding:0; font-size:inherit; }
+
+/* ---------- callouts ---------- */
+.box{ break-inside:avoid; margin:3mm 0; padding:2.6mm 3.4mm; border-radius:3px; font-size:9.5pt; }
+.box .lbl{ font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:7.4pt; font-weight:700;
+           letter-spacing:.14em; text-transform:uppercase; display:block; margin-bottom:1.2mm; }
+.box p:last-child, .box ul:last-child, .box ol:last-child{ margin-bottom:0; }
+.q{ background:var(--q-soft); border-left:2.5px solid var(--q); }
+.q .lbl{ color:var(--q); }
+.task{ background:var(--task-soft); border-left:2.5px solid var(--task); }
+.task .lbl{ color:var(--task); }
+.trap{ background:var(--trap-soft); border-left:2.5px solid var(--trap); }
+.trap .lbl{ color:var(--trap); }
+.note{ background:var(--accent-soft); border-left:2.5px solid var(--accent); }
+.note .lbl{ color:var(--accent); }
+
+.refs{ font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:8.6pt; color:var(--muted);
+       border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:2mm 0; margin:3mm 0; break-inside:avoid; }
+.refs b{ color:var(--ink); font-weight:700; }
+.refs span{ display:block; margin:.6mm 0; }
+
+/* ---------- tables ---------- */
+table{ border-collapse:collapse; width:100%; font-size:8.8pt; margin:2.5mm 0 4mm;
+       font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; break-inside:auto; }
+th{ text-align:left; font-size:7.6pt; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
+    border-bottom:1.2px solid var(--ink); padding:1.6mm 2.2mm 1.4mm 0; vertical-align:bottom; }
+td{ border-bottom:1px solid var(--rule); padding:1.5mm 2.2mm 1.5mm 0; vertical-align:top; }
+tr{ break-inside:avoid; }
+td code{ font-size:8pt; }
+.tight td,.tight th{ padding-right:1.6mm; }
+
+/* ---------- misc ---------- */
+.toc{ font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:9.3pt; column-count:2; column-gap:9mm; }
+.toc div{ break-inside:avoid; margin-bottom:1.2mm; }
+.toc .t-entry{ margin-bottom:0; }
+.toc .t-part{ font-weight:700; margin-top:3mm; color:var(--accent); }
+.toc .t-sub{ padding-left:4mm; color:var(--muted); }
+figure{ margin:4mm 0; break-inside:avoid; }
+figcaption{ font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:8.2pt; color:var(--muted); margin-top:1.5mm; }
+.lede{ font-size:11pt; color:var(--muted); }
+.small{ font-size:9pt; color:var(--muted); }
+hr{ border:0; border-top:1px solid var(--rule); margin:5mm 0; }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:0 7mm; }
+.avoid{ break-inside:avoid; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COVER ============================== -->
+<section class="cover">
+  <div class="kicker">Pascal2J &middot; Engineering &amp; Study Plan</div>
+  <h1>Building a Pascal Compiler
+    <small>Stage 1: a shared front end and an optimising JVM/Jasmin back end.<br>
+    Stage 2: your own bytecode for an adaptive virtual machine.</small></h1>
+  <div class="rule"></div>
+  <dl>
+    <dt>Repository</dt><dd>netos23/Pascal2J &mdash; Kotlin 2.3.x, Gradle KTS, JVM toolchain 18</dd>
+    <dt>Status</dt><dd>Grammar drafted; implementation not yet started (old Java prototype archived)</dd>
+    <dt>Target 1</dt><dd>Jasmin assembly &rarr; <code>.class</code>, semantically faithful, then optimised</dd>
+    <dt>Target 2</dt><dd>Own instruction set + profiling, tiered, deoptimising VM</dd>
+    <dt>Sources</dt><dd>Wirth, <i>Compiler Construction</i> (1996) &middot; Aho, Lam, Sethi &amp; Ullman, <i>Compilers</i> (2nd ed., &ldquo;Dragon&rdquo;) &middot; Appel, <i>Modern Compiler Implementation in Java</i> (2nd ed.) &middot; Pierce, <i>Types and Programming Languages</i></dd>
+  </dl>
+  <div class="foot">
+    This document is a <b>roadmap, not a solution</b>. It fixes the order of work, names the decisions you must
+    make yourself, points at the chapter that answers each question, and lists the exercises that are worth
+    your time. Where it gives an opinion it says so, and says why.
+  </div>
+</section>
+
+<!-- ============================== TOC ============================== -->
+<section>
+<h2 class="part-title">Contents</h2>
+<div class="part-lede">Fourteen parts. Parts 0&ndash;3 are decisions and scaffolding; 4&ndash;11 are the compiler; 12&ndash;13 look ahead to the VM.</div>
+<div class="toc">
+  <div class="t-entry"><div class="t-part">0 &nbsp;How to use this roadmap</div><div class="t-sub">The four books, and what each is for</div>
+  </div><div class="t-entry"><div class="t-part">1 &nbsp;Scope: which Pascal are you writing?</div><div class="t-sub">Dialect, feature triage, the deviations file</div>
+  </div><div class="t-entry"><div class="t-part">2 &nbsp;Architecture and the front/back boundary</div><div class="t-sub">Modules, the two IR levels, three executors</div>
+  </div><div class="t-entry"><div class="t-part">3 &nbsp;Milestone map</div><div class="t-sub">M0&ndash;M12, exit criteria, the vertical slice</div>
+  </div><div class="t-entry"><div class="t-part">4 &nbsp;Foundations: sources, spans, diagnostics</div></div><div class="t-entry"><div class="t-part">5 &nbsp;Lexical analysis</div></div><div class="t-entry"><div class="t-part">6 &nbsp;Parsing and the AST</div></div><div class="t-entry"><div class="t-part">7 &nbsp;Scopes, symbols and nesting</div></div><div class="t-entry"><div class="t-part">8 &nbsp;Types and semantic analysis</div><div class="t-sub">Writing the rules down before coding them</div>
+  </div><div class="t-entry"><div class="t-part">9 &nbsp;HIR: desugaring and lowering</div></div><div class="t-entry"><div class="t-part">10 &nbsp;MIR: CFG, SSA, and the optimiser</div></div><div class="t-entry"><div class="t-part">11 &nbsp;The Jasmin back end</div><div class="t-sub">Mapping, verification, runtime library</div>
+  </div><div class="t-entry"><div class="t-part">12 &nbsp;Testing, conformance, measurement</div></div><div class="t-entry"><div class="t-part">13 &nbsp;Stage 2: your own bytecode and adaptive VM</div></div><div class="t-entry"><div class="t-part">A &nbsp;Decision log template</div></div><div class="t-entry"><div class="t-part">B &nbsp;Suggested repository layout</div></div><div class="t-entry"><div class="t-part">C &nbsp;Cross-reference matrix</div></div><div class="t-entry"><div class="t-part">D &nbsp;Beyond the four books</div></div><div class="t-entry"><div class="t-part">E &nbsp;Risk register and anti-patterns</div></div></div>
+</section>
+
+<!-- ============================== PART 0 ============================== -->
+<section class="part">
+<div class="part-num">Part 0</div>
+<h2 class="part-title">How to use this roadmap</h2>
+<div class="part-lede">You have four books that disagree with each other in useful ways. Read them as four opinions on the same problem, not as four chapters of one manual.</div>
+
+<p>Every part below has the same shape: <b>goal</b>, <b>deliverable</b>, the <b>decisions</b> that are genuinely
+yours to make, a <b>reading</b> strip with chapter pointers, <b>traps</b> that cost people weeks, and <b>tasks</b> —
+small, self-contained pieces of work that teach something you cannot learn by reading. Tasks are marked
+<span class="small">(1)</span> an evening, <span class="small">(2)</span> a weekend,
+<span class="small">(3)</span> a week or more.</p>
+
+<p>Nothing here is implemented for you on purpose. A compiler is one of the few programs where the
+design decisions <i>are</i> the education; if you take a decision from a document instead of making it,
+you will hit the consequence three months later without the context to understand it.</p>
+
+<h3>The four books, and what each is for</h3>
+
+<table>
+<tr><th style="width:30mm">Book</th><th style="width:26mm">Role</th><th>How to actually use it</th></tr>
+<tr>
+  <td><b>Wirth</b><br><span class="small">Compiler Construction, 1996</span></td>
+  <td>The skeleton</td>
+  <td>A complete compiler in ~130 pages. Its value is <i>proportion</i>: it shows how small each phase can be
+      when the language is designed for one pass. Read chapters 1&ndash;12 once, in order, early. Wirth's Oberon-0
+      compiler emits code directly from the parser with no IR at all — you will not do that, but you should
+      understand why he can and why you cannot (two back ends, an optimiser). Chapters 9&ndash;12 (RISC target,
+      expressions, control flow, procedures and locality) are the clearest short account of code generation
+      anywhere; chapter 12 on the static link is exactly the problem the JVM will make hard for you.</td>
+</tr>
+<tr>
+  <td><b>Dragon</b><br><span class="small">Aho, Lam, Sethi, Ullman, 2nd ed.</span></td>
+  <td>The encyclopedia</td>
+  <td>Do not read cover to cover; you will stall in chapter 4 on LR construction you will never write by hand.
+      Use it as a lookup: &sect;3.3&ndash;3.7 for regular languages and DFA construction, &sect;4.4 for LL(1) and FIRST/FOLLOW,
+      ch. 5 for syntax-directed definitions (the right mental model for your semantic passes), &sect;6.2 for
+      three-address code and &sect;6.2.4 for SSA, &sect;6.6&ndash;6.7 for boolean-expression translation and backpatching,
+      &sect;7.3 for access to non-local data, ch. 8 for basic blocks, peephole and &sect;8.10 Sethi&ndash;Ullman, ch. 9 for
+      data-flow frameworks and loop optimisation.</td>
+</tr>
+<tr>
+  <td><b>Appel</b><br><span class="small">Modern Compiler Implementation in Java, 2nd ed.</span></td>
+  <td>The blueprint</td>
+  <td>Closest to what you are building: a real multi-phase compiler with clean module boundaries, in a JVM
+      language. Chapters 4&ndash;8 (abstract syntax, semantic analysis, activation records, translation to IR trees,
+      basic blocks and traces) are your Parts 6&ndash;10. The <code>Ex</code>/<code>Nx</code>/<code>Cx</code> trichotomy in
+      ch. 7 is the single most useful idea in the book for your back end. Chapters 10&ndash;11 (liveness, register
+      allocation) you can skip for the JVM and return to for stage 2. Chapter 13 (garbage collection) and
+      15 (closures) become essential in stage 2. Chapters 17&ndash;19 (data-flow, loops, SSA) are your optimiser.</td>
+</tr>
+<tr>
+  <td><b>Pierce</b><br><span class="small">Types and Programming Languages</span></td>
+  <td>The rigour</td>
+  <td>Pascal is simply typed, so you need a narrow slice: ch. 3 (induction and operational semantics —
+      the notation you will use to <i>write your own rules down</i>), ch. 8&ndash;9 (typed arithmetic, STLC, and what
+      progress and preservation mean), ch. 11 (records, variants, sums, general recursion), <b>ch. 13
+      (references)</b> — this is your <code>^T</code> pointers and <code>var</code> parameters, ch. 14 (exceptions) for
+      runtime errors, ch. 15&ndash;17 (subtyping) for the subrange/assignment-compatibility relation, and ch. 19
+      (Featherweight Java) when you decide how records and procedures map onto classes. Use it to
+      <i>specify</i>, not to implement.</td>
+</tr>
+</table>
+
+<div class="box note"><span class="lbl">Reading order that works</span>
+Wirth end-to-end first (one week, it is short) so you have a complete mental model of a whole compiler.
+Then Appel chapter by chapter, one chapter ahead of the part you are implementing. Dragon and Pierce
+on demand, by section. A compiler read about is worth roughly nothing; the point of Wirth first is that
+it is short enough to finish before you get bored, and it will stop you over-engineering Part 4.</div>
+
+<div class="box q"><span class="lbl">Question to settle now</span>
+Are you writing this compiler to <i>learn compilers</i>, or to <i>have a Pascal compiler</i>? The answer changes
+the roadmap. If the former, hand-write everything (lexer, parser, register allocator later) and accept a
+narrower language. If the latter, generate the parser, take a wider dialect, and spend the saved time on
+the back ends. This document assumes the former with an eye on the latter — it is the right bias for a
+project whose stage 2 is &ldquo;write an adaptive VM&rdquo;.</div>
+</section>
+
+<!-- ============================== PART 1 ============================== -->
+<section class="part">
+<div class="part-num">Part 1</div>
+<h2 class="part-title">Scope: which Pascal are you writing?</h2>
+<div class="part-lede">Undecided scope is the most common reason hobby compilers die. Fix the dialect before you write the lexer, and write the exclusions down.</div>
+
+<p>&ldquo;Pascal&rdquo; is at least four languages: ISO 7185 (Standard Pascal, 1983), ISO 10206 (Extended Pascal, 1990),
+UCSD/Turbo Pascal, and Delphi&nbsp;/ Object Pascal. They differ in ways that reach all the way into your back end
+— Turbo strings are length-prefixed and assignable, ISO strings are <code>packed array[1..n] of char</code> with
+different assignment rules; Turbo has units, ISO has one monolithic program; Turbo short-circuits boolean
+operators, ISO does not specify the order of evaluation at all.</p>
+
+<div class="box note"><span class="lbl">Recommendation</span>
+Target <b>ISO 7185 level 0</b> (no conformant array parameters) as the specification, plus a short, explicit
+list of Turbo-flavoured conveniences you allow. Reason: 7185 is a real, finite, freely available standard
+with a conformance test suite in the wild, and &ldquo;does the standard permit this?&rdquo; is then always an
+answerable question. &ldquo;What would Turbo do?&rdquo; is not.</div>
+
+<h3>Feature triage</h3>
+<p>Put every language feature into exactly one of three buckets and keep the table in the repository. It is
+the single most useful artefact of the whole scoping exercise, because it turns &ldquo;this program does not
+compile&rdquo; into either a bug or a documented non-goal.</p>
+
+<table>
+<tr><th style="width:30mm">Bucket</th><th>Features</th></tr>
+<tr><td><b>Core</b><br><span class="small">must work at M8</span></td>
+ <td>integer / real / boolean / char, enumerations, subranges, constants, <code>array</code> (multi-dimensional,
+ arbitrary ordinal index types), <code>record</code> (fixed part), <code>set</code>, statically nested procedures and
+ functions, value and <code>var</code> parameters, full expression language, <code>if</code> / <code>while</code> / <code>repeat</code> /
+ <code>for</code> / <code>case</code> / <code>with</code>, <code>read</code> / <code>readln</code> / <code>write</code> / <code>writeln</code> on standard input and
+ output, the required functions (<code>abs</code>, <code>sqr</code>, <code>ord</code>, <code>chr</code>, <code>succ</code>, <code>pred</code>, <code>odd</code>, <code>trunc</code>,
+ <code>round</code>, <code>sin</code>&hellip;).</td></tr>
+<tr><td><b>Later</b><br><span class="small">after M8, in this order</span></td>
+ <td>pointers with <code>new</code> / <code>dispose</code>, linked structures, variant records, file variables beyond
+ <code>text</code>, <code>goto</code> (local first, non-local later), procedural parameters, conformant arrays,
+ Turbo-style units or an ISO 10206 module system.</td></tr>
+<tr><td><b>Excluded</b><br><span class="small">write it down, with the reason</span></td>
+ <td>Objects/classes, exceptions, generics, inline assembler, absolute addresses, pointer arithmetic,
+ <code>packed</code> as a storage guarantee (accept the keyword, ignore the packing), untyped <code>var</code> parameters.</td></tr>
+</table>
+
+<h3>Semantics you cannot reproduce exactly, and must document</h3>
+<p>Start <code>docs/DEVIATIONS.md</code> at the same time as the lexer. Every entry is a line of the form
+<i>standard says X; Pascal2J does Y; because Z</i>. Candidates you will hit:</p>
+<ul>
+<li><b>Integer overflow.</b> ISO makes it an error; the JVM wraps silently. Decide: wrap (fast, wrong),
+    or check with <code>Math.addExact</code> and friends (correct, and on HotSpot nearly free because it is
+    intrinsified — measure it, this is Task&nbsp;1.3).</li>
+<li><b>Real arithmetic and output format.</b> ISO specifies a default floating output format that is not
+    Java's <code>Double.toString</code>. Matching it exactly is a week of tedium; matching <code>x:w:d</code> field
+    notation is a day and worth it.</li>
+<li><b><code>dispose</code> and dangling pointers.</b> On a garbage-collected host, <code>dispose</code> cannot make a
+    pointer dangle. Either make it a no-op or (better for teaching) poison the cell in debug builds so
+    use-after-dispose is detected rather than silently working.</li>
+<li><b>Variant records used for type punning.</b> The standard says reading a field of an inactive
+    variant is an error; real programs do it deliberately. You cannot reinterpret an <code>int</code> as a
+    <code>float</code> through a JVM object field. Decide early whether variants are a tagged union (safe,
+    breaks punning) or you exclude them.</li>
+<li><b>Uninitialised variables.</b> ISO leaves them undefined; the JVM zero-initialises everything.
+    Your programs will be <i>more</i> defined than the standard. That is fine, but a program that relies
+    on it is not portable — consider a definite-assignment warning (Part 10).</li>
+<li><b>Evaluation order and short-circuiting.</b> See Part 11; the choice changes generated code and
+    program meaning.</li>
+</ul>
+
+<div class="box trap"><span class="lbl">From your own repository</span>
+<code>testSourses/ok/test0.pas</code> is filed under <code>ok/</code> but is not valid ISO Pascal: <code>var c := 'y'</code> has
+no type, <code>const 9n : integer = 0</code> is not an identifier, a typed <code>const</code> with an initialiser is a Turbo
+extension, <code>const</code> appears after <code>var</code>, and <code>procedure v();</code> has empty parentheses that ISO does
+not allow. That single file contains at least five dialect decisions. Splitting your corpus into
+<code>ok/</code> and <code>reject/</code> and justifying each verdict against the standard is genuinely the best first
+day of work on this project — it forces every question in this part to the surface before any code
+depends on the answers. (While you are there: rename to <code>testSources/</code>.)</div>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>1.1 (1)</b> Fill in the triage table for your grammar; any production you cannot place is a production
+you do not understand yet.<br>
+<b>1.2 (2)</b> Classify every file in <code>testSources/</code> as accept or reject, with a one-line standard citation
+for each reject. Design the annotation format now — e.g. a comment
+<code>{! expect error E0102 at 3:8 !}</code> — because Part 4 will consume it.<br>
+<b>1.3 (1)</b> Write a JMH microbenchmark comparing <code>a + b</code> against <code>Math.addExact(a, b)</code> in a hot loop.
+The result will surprise you, and it decides your overflow policy with data instead of folklore.
+</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+Does your grammar allow the ISO declaration order (<code>label</code>, <code>const</code>, <code>type</code>, <code>var</code>, procedures,
+in that order, each at most once) or the Turbo free order? &mdash; Which decision makes your parser simpler,
+and is &ldquo;simpler parser&rdquo; a good reason to restrict a language? &mdash; If you accept both, where does the
+diagnostic live: in the parser or in a later check, and which gives the better error message?</div>
+</section>
+
+<!-- ============================== PART 2 ============================== -->
+<section class="part">
+<div class="part-num">Part 2</div>
+<h2 class="part-title">Architecture and the front/back boundary</h2>
+<div class="part-lede">You asked for a shared front end and a replaceable back end. That is the right shape, and it is worth being strict about: the boundary is the deliverable of stage 1, not the <code>.class</code> files.</div>
+
+<h3>The pipeline</h3>
+<figure>
+<svg viewBox="0 0 760 300" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="3.2" orient="auto">
+      <path d="M0,0 L8,3.2 L0,6.4 z" fill="#2d3f8f"/>
+    </marker>
+  </defs>
+  <rect x="2" y="8" width="470" height="128" rx="5" fill="#eef1fa" stroke="#2d3f8f" stroke-width="1"/>
+  <text x="14" y="26" font-size="11" font-weight="700" fill="#2d3f8f">FRONT END  (target-independent, knows nothing about the JVM)</text>
+
+  <g font-size="10.5" fill="#15171c">
+    <rect x="16" y="38" width="78" height="34" rx="3" fill="#fff" stroke="#8d96b5"/><text x="30" y="59">Lexer</text>
+    <rect x="106" y="38" width="78" height="34" rx="3" fill="#fff" stroke="#8d96b5"/><text x="122" y="59">Parser</text>
+    <rect x="196" y="38" width="88" height="34" rx="3" fill="#fff" stroke="#8d96b5"/><text x="206" y="53">Symbols /</text><text x="206" y="66">scopes</text>
+    <rect x="296" y="38" width="78" height="34" rx="3" fill="#fff" stroke="#8d96b5"/><text x="306" y="53">Types /</text><text x="306" y="66">sema</text>
+    <rect x="386" y="38" width="74" height="34" rx="3" fill="#fff" stroke="#8d96b5"/><text x="400" y="53">Lower</text><text x="400" y="66">to HIR</text>
+  </g>
+  <g stroke="#2d3f8f" stroke-width="1.2" marker-end="url(#a)" fill="none">
+    <path d="M94,55 L104,55"/><path d="M184,55 L194,55"/><path d="M284,55 L294,55"/><path d="M374,55 L384,55"/>
+  </g>
+  <g font-size="9" fill="#5a6170">
+    <text x="16" y="88">tokens</text><text x="106" y="88">AST</text><text x="196" y="88">symbol tables</text><text x="296" y="88">typed AST</text><text x="386" y="88">HIR</text>
+  </g>
+  <rect x="16" y="96" width="444" height="30" rx="3" fill="#fff" stroke="#8d96b5" stroke-dasharray="3 2"/>
+  <text x="28" y="115" font-size="10.5">Diagnostics engine, source map, arena of interned types &mdash; shared by every phase</text>
+
+  <rect x="510" y="8" width="248" height="128" rx="5" fill="#fff" stroke="#2d3f8f" stroke-width="1.6"/>
+  <text x="522" y="26" font-size="11" font-weight="700" fill="#2d3f8f">MIR</text>
+  <g font-size="10" fill="#15171c">
+    <text x="522" y="44">CFG of basic blocks, SSA,</text>
+    <text x="522" y="59">3-address, explicit checks,</text>
+    <text x="522" y="74">structured aggregate access,</text>
+    <text x="522" y="89">no machine addresses.</text>
+  </g>
+  <text x="522" y="112" font-size="10" font-weight="700" fill="#2d3f8f">Textual form: *.mir</text>
+  <text x="522" y="126" font-size="9" fill="#5a6170">printable, re-parseable, diffable</text>
+  <path d="M472,72 L506,72" stroke="#2d3f8f" stroke-width="1.6" marker-end="url(#a)" fill="none"/>
+
+  <path d="M634,138 L634,152" stroke="#2d3f8f" stroke-width="1.6" fill="none"/>
+  <path d="M150,152 L634,152" stroke="#2d3f8f" stroke-width="1.6" fill="none"/>
+  <path d="M150,152 L150,172" stroke="#2d3f8f" stroke-width="1.6" marker-end="url(#a)" fill="none"/>
+  <path d="M400,152 L400,172" stroke="#2d3f8f" stroke-width="1.6" marker-end="url(#a)" fill="none"/>
+
+  <rect x="40" y="176" width="220" height="62" rx="5" fill="#eaf5ee" stroke="#14532d"/>
+  <text x="52" y="196" font-size="11" font-weight="700" fill="#14532d">MIR interpreter</text>
+  <text x="52" y="212" font-size="9.5" fill="#15171c">Reference oracle. Slow, obviously</text>
+  <text x="52" y="225" font-size="9.5" fill="#15171c">correct, no codegen bugs.</text>
+
+  <rect x="290" y="176" width="220" height="62" rx="5" fill="#eaf5ee" stroke="#14532d"/>
+  <text x="302" y="196" font-size="11" font-weight="700" fill="#14532d">Back end 1 &mdash; Jasmin</text>
+  <text x="302" y="212" font-size="9.5" fill="#15171c">.j text &rarr; jasmin &rarr; .class,</text>
+  <text x="302" y="225" font-size="9.5" fill="#15171c">runs on any JVM. STAGE 1.</text>
+
+  <rect x="540" y="176" width="220" height="62" rx="5" fill="#f5f6f8" stroke="#8d96b5" stroke-dasharray="4 3"/>
+  <text x="552" y="196" font-size="11" font-weight="700" fill="#5a6170">Back end 2 &mdash; own ISA</text>
+  <text x="552" y="212" font-size="9.5" fill="#5a6170">Register bytecode + adaptive</text>
+  <text x="552" y="225" font-size="9.5" fill="#5a6170">VM. STAGE 2.</text>
+  <path d="M634,152 L650,152 L650,172" stroke="#8d96b5" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#a)" fill="none"/>
+
+  <text x="40" y="258" font-size="9.5" fill="#5a6170">Differential testing across all three executors is the cheapest bug-finder you will ever build (Part 12).</text>
+
+</svg>
+<figcaption>The boundary that matters is MIR, and it is worth the extra cost of a printable, re-parseable textual form.</figcaption>
+</figure>
+
+<h3>Why two IR levels, and not zero or three</h3>
+<p>Wirth uses none: his parser calls the code emitter directly. That works because Oberon-0 is designed
+for it and he does no optimisation. Appel uses one tree IR plus a canonicalised linear form. Dragon
+describes three-address code. For you:</p>
+<ul>
+<li><b>HIR</b> — a typed, desugared tree. Names resolved, every implicit conversion made explicit, <code>for</code>
+    rewritten, <code>with</code> eliminated, constant expressions folded. Still structured: loops are loops.
+    It is the last form in which a source-level debugger or a pretty-printer is easy.</li>
+<li><b>MIR</b> — a control-flow graph of basic blocks over three-address instructions, in SSA form, with
+    an explicit <code>check</code> vocabulary (range check, nil check, index check, overflow check) so the optimiser
+    can <i>remove</i> them. This is what both back ends consume.</li>
+</ul>
+<p>Resist a third level. The temptation is a &ldquo;LIR&rdquo; close to JVM bytecode; you do not need it, because the
+JVM is a stack machine and post-order traversal of MIR expressions already gives near-optimal stack code.</p>
+
+<div class="box note"><span class="lbl">The one non-obvious recommendation in this document</span>
+Make MIR <b>printable and re-parseable</b> from day one: <code>pascal2j --emit=mir foo.pas</code> writes
+<code>foo.mir</code>, and <code>pascal2j --from-mir foo.mir --backend=jasmin</code> reads it back. It costs perhaps
+two days. In return: your back end gets unit tests that do not involve Pascal at all, your optimiser
+gets golden-file tests that a human can read in a diff, you can hand-write pathological MIR to test
+the back end, and in stage 2 you can develop your VM against <code>.mir</code> files without the front end in
+the loop. Every serious compiler has this (LLVM's <code>.ll</code>, Cranelift's CLIF) and every student
+compiler that lacks it ends up debugging the front end and back end simultaneously.</div>
+
+<h3>Enforcing the boundary</h3>
+<p>&ldquo;Separate front end&rdquo; is a property you have to defend mechanically, because the first deadline will
+tempt you to sneak a JVM detail into the type checker (a descriptor string, a slot number, a
+<code>java/lang/String</code>). Make it impossible:</p>
+<ul>
+<li>Separate Gradle modules, with <code>:frontend</code> having no dependency on <code>:backend-jasmin</code> —
+    the compiler then rejects the shortcut for you.</li>
+<li>The driver depends on both and wires them via an interface:
+<pre><code>interface Backend {
+    val id: String                       // "jasmin", later "dvm"
+    fun emit(program: MirProgram, opts: BackendOptions): List&lt;Artifact&gt;
+}</code></pre></li>
+<li>A negative test: <code>./gradlew :frontend:check</code> must pass with <code>:backend-jasmin</code> absent from the
+    build entirely.</li>
+</ul>
+
+<div class="box q"><span class="lbl">Questions</span>
+What, exactly, belongs to the front end when the back ends differ this much? Integer widths, for
+instance: is &ldquo;<code>integer</code> is 32-bit two's complement&rdquo; a language fact (front end) or a target fact
+(back end)? &mdash; Where does the decision to represent <code>set of char</code> as four 64-bit words live?
+&mdash; If stage 2's VM is register-based and untagged, does MIR need a notion of value <i>size</i>, and if you add
+one, is MIR still target-independent or have you smuggled a target in?</div>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>2.1 (2)</b> Write the MIR data types and its printer <i>before</i> writing the code that produces MIR.
+Hand-write three <code>.mir</code> files by hand (a loop, a call, an array store) and make the printer round-trip them.<br>
+<b>2.2 (1)</b> Draw your own version of the diagram above, and for each arrow write down what data
+crosses it and what invariants hold there. Put it in <code>docs/</code>. When you break an invariant in four
+months, this drawing is what tells you which side is wrong.
+</div>
+</section>
+
+<!-- ============================== PART 3 ============================== -->
+<section class="part">
+<div class="part-num">Part 3</div>
+<h2 class="part-title">Milestone map</h2>
+<div class="part-lede">Thirteen milestones. The order is chosen so that you always have a working compiler for <i>some</i> language, and it grows. Never spend three months before the first program runs.</div>
+
+<p>Effort is given in weeks at roughly ten focused hours a week, for someone learning the material as they
+go. They will be wrong; the ratios between them will not be.</p>
+
+<table class="tight">
+<tr><th style="width:12mm">M</th><th style="width:46mm">Milestone</th><th>Exit criterion — a binary, testable statement</th><th style="width:13mm">Effort</th></tr>
+<tr><td><b>M0</b></td><td>Scope and corpus</td><td>Triage table filled in; <code>testSources/</code> split into accept/reject with citations; <code>DEVIATIONS.md</code> exists.</td><td>1</td></tr>
+<tr><td><b>M1</b></td><td><b>Vertical slice</b></td><td><code>begin writeln(42) end.</code> compiles through lexer&rarr;parser&rarr;HIR&rarr;MIR&rarr;Jasmin and the resulting <code>.class</code> prints 42 under <code>java</code>. Everything is a stub; nothing is general.</td><td>1&ndash;2</td></tr>
+<tr><td><b>M2</b></td><td>Diagnostics infrastructure</td><td>Every error has a code, a span, and a rendered caret; the reject corpus asserts exact codes and positions; a fuzzer cannot make the compiler throw an uncaught Kotlin exception.</td><td>1</td></tr>
+<tr><td><b>M3</b></td><td>Full lexer</td><td>Every token in your grammar, case-insensitive, both comment forms, <code>1..3</code> handled, string escapes, all literal forms; golden token dumps for the corpus.</td><td>1</td></tr>
+<tr><td><b>M4</b></td><td>Full parser + AST</td><td>Whole grammar parses; FIRST/FOLLOW conflicts documented; error recovery produces at most one diagnostic per broken statement and never loops; AST printer round-trips.</td><td>2&ndash;3</td></tr>
+<tr><td><b>M5</b></td><td>Symbols and scopes</td><td>Nested procedures resolve correctly, including forward declarations and shadowing; a scope dump test; every identifier in the AST has a resolved symbol or a diagnostic.</td><td>1&ndash;2</td></tr>
+<tr><td><b>M6</b></td><td>Type checker</td><td>Your written typing rules are implemented one-to-one; assignment compatibility, ordinal indexing, set base types, <code>var</code>-parameter lvalue rules, function result assignment. Reject corpus fully green.</td><td>3&ndash;4</td></tr>
+<tr><td><b>M7</b></td><td>HIR + MIR + interpreter</td><td>The MIR interpreter runs the whole accept corpus and produces the expected output. <i>You now have a working Pascal implementation with no back end.</i></td><td>2&ndash;3</td></tr>
+<tr><td><b>M8</b></td><td><b>Jasmin back end, correct</b></td><td>Every accept-corpus program produces byte-identical output under the JVM and under the MIR interpreter. No optimisation whatsoever. This is the real stage-1 goal.</td><td>3&ndash;4</td></tr>
+<tr><td><b>M9</b></td><td>Runtime library + I/O fidelity</td><td><code>write</code>/<code>writeln</code> field widths, reals, <code>read</code>/<code>readln</code> tokenising, <code>eof</code>/<code>eoln</code>; runtime errors carry Pascal line numbers in the JVM stack trace.</td><td>1&ndash;2</td></tr>
+<tr><td><b>M10</b></td><td>Benchmarks + measurement</td><td>Five benchmark programs, a harness with warm-up, and a committed baseline table. <i>Before</i> any optimisation exists.</td><td>1</td></tr>
+<tr><td><b>M11</b></td><td>Optimiser</td><td>SSA construction, SCCP, DCE, GVN, LICM, range analysis and check elimination. Each pass ships with: a golden MIR test, a correctness argument, and a measured delta on M10's benchmarks — including the ones where it measures zero.</td><td>4&ndash;6</td></tr>
+<tr><td><b>M12</b></td><td>Stage 2 spike</td><td>Own ISA specified, assembler/disassembler, verifier, and a plain interpreter that runs the corpus. Only then: profiling, tiering, OSR, deopt.</td><td>6+</td></tr>
+</table>
+
+<div class="box note"><span class="lbl">On M1, the vertical slice</span>
+Do not build the lexer completely, then the parser completely. Build the thinnest possible path through
+all six phases first, with a lexer that knows five tokens and a back end that can only emit
+<code>println(int)</code>. You will discover the shape of every interface in a week rather than in month four,
+when changing them is expensive. This is the single highest-leverage scheduling decision on the list, and
+it is the one most students skip.</div>
+
+<div class="box trap"><span class="lbl">Ordering traps</span>
+<b>M10 before M11 is not negotiable.</b> An optimiser without a benchmark harness is a hobby, and on the
+JVM specifically you will find that several textbook passes measure exactly zero because HotSpot's C2
+already did them. That is a <i>result</i>, not a failure — but only if you measured. &mdash; Likewise M7 before M8:
+the MIR interpreter seems like a detour until the first time your generated bytecode is wrong and you
+can ask &ldquo;is the front end or the back end lying?&rdquo; and get an answer in one command.</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+Which milestone is the first one where you could stop and still have something you are proud of? &mdash;
+Which are you most likely to skip, and what would it cost? &mdash; M6 is the longest single milestone; can
+you split it so that something is demonstrable every week?</div>
+</section>
+
+<!-- ============================== PART 4 ============================== -->
+<section class="part">
+<div class="part-num">Part 4</div>
+<h2 class="part-title">Foundations: sources, spans, diagnostics</h2>
+<div class="part-lede">The quality of a compiler, as experienced by its users, is almost entirely the quality of its error messages. Build the machinery before the phases that need it, or you will retrofit spans through fifty classes.</div>
+
+<h4>Goal</h4>
+<p>A diagnostics engine that every later phase reports through, and a source map that turns byte offsets
+into human positions.</p>
+
+<h4>Design decisions</h4>
+<ul>
+<li><b>Spans, not line/column.</b> Store <code>(startOffset, endOffset)</code> as two <code>Int</code>s in every AST node; compute
+line and column lazily from a line-start index built once per file. Line/column in every node is
+memory you pay for and a conversion you repeat.</li>
+<li><b>Stable error codes.</b> <code>E0102</code>, not a message string. Codes let tests assert on meaning rather than
+wording, let you add <code>--explain E0102</code> later, and let you change the prose freely.</li>
+<li><b>Structure, not strings.</b> A diagnostic is <code>{severity, code, primarySpan, message, notes[], helps[]}</code>.
+Rendering is a separate concern, so you can add JSON output for an IDE without touching any phase.</li>
+<li><b>Fail-soft.</b> Phases return partial results plus diagnostics; only the driver decides whether to
+continue. An <code>error</code> type and an <code>error</code> symbol that absorb further errors silently are what stop
+one mistake producing forty messages (Appel ch. 5 makes this point about semantic analysis
+specifically).</li>
+<li><b>Determinism.</b> The compiler must be a pure function from inputs to outputs, including the
+<i>order</i> of diagnostics. Use <code>LinkedHashMap</code>, never iterate a <code>HashSet</code> into output, sort by span
+before rendering. Golden tests will punish you otherwise, non-reproducibly, on someone else's machine.</li>
+</ul>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>4.1 (1)</b> Implement the caret renderer: source line, underline of the primary span, notes beneath.
+Handle tabs (a tab is not one column) and multi-line spans.<br>
+<b>4.2 (1)</b> Build the test harness that reads <code>{! expect E0102 at 3:8 !}</code> annotations out of a
+<code>reject/</code> file and asserts the compiler produced exactly that set — no more, no fewer. The
+&ldquo;no more&rdquo; half is what catches cascading-error regressions.<br>
+<b>4.3 (2)</b> Add <code>--emit=tokens|ast|hir|mir|jasmin</code> to the driver on day one. Every phase becomes
+independently inspectable, and every bug report becomes reproducible with one command.
+</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+When is it right to stop after a phase and when should you push a partial result forward? (A parse
+error usually stops semantic analysis; a <i>type</i> error usually should not stop checking the rest of the
+program.) &mdash; What is your policy for the second and subsequent errors caused by the same root
+mistake, and how will you test that the policy holds?</div>
+
+<div class="refs"><b>Reading</b>
+<span><b>Appel</b> ch. 4 &sect;&ldquo;abstract syntax positions&rdquo; and ch. 5 on error types absorbing cascades.</span>
+<span><b>Wirth</b> ch. 7 &mdash; his whole error strategy in two pages; note how cheap it is and how much it buys.</span>
+<span><b>Dragon</b> &sect;1.3, &sect;4.1.3&ndash;4.1.4 on error-recovery strategies and their trade-offs.</span>
+</div>
+</section>
+
+<!-- ============================== PART 5 ============================== -->
+<section class="part">
+<div class="part-num">Part 5</div>
+<h2 class="part-title">Lexical analysis</h2>
+<div class="part-lede">The easiest phase, with three genuine traps in Pascal specifically. Hand-write it; a generator buys you nothing at this size and costs you control of error messages.</div>
+
+<h4>Deliverable</h4>
+<p>A lexer producing a token stream with spans, plus golden token dumps for the corpus.</p>
+
+<h4>The three Pascal traps</h4>
+<ul>
+<li><b><code>1..3</code> versus <code>1.5</code>.</b> Pure maximal munch lexes <code>1..3</code> as the real number <code>1.</code> followed by
+<code>.3</code>, and your own test file contains <code>array [1..3]</code>. The fix is one character of extra lookahead:
+on a digit sequence followed by <code>.</code>, peek the character after the dot; if it is another <code>.</code>, emit the
+integer and leave both dots. This is the textbook example of why maximal munch needs a backtracking
+escape hatch, and it is worth understanding as theory, not just as a patch — the same issue is why
+C needs <code>&gt;&gt;</code> disambiguation in templates and why Pascal's designers regretted nothing.</li>
+<li><b>Case insensitivity.</b> <code>Begin</code>, <code>BEGIN</code> and <code>begin</code> are one keyword; <code>Foo</code> and <code>foo</code> are one
+identifier. Fold for lookup but <i>keep the original spelling</i> for diagnostics, so the error says
+<code>Foo</code> the way the user wrote it. In Kotlin, fold with <code>lowercase()</code> and be aware that a
+locale-sensitive fold turns <code>I</code> into a dotless <code>&#305;</code> in Turkish locales; <code>lowercase()</code> on Kotlin is
+locale-independent (it is <code>Locale.ROOT</code> semantics) but <code>String.toLowerCase()</code> from Java is not.
+A compiler whose behaviour depends on the machine's locale is a real bug that has shipped in real
+products.</li>
+<li><b>Comments.</b> <code>{ ... }</code> and <code>(* ... *)</code> are both comments, and in ISO Pascal a comment opened with
+<code>{</code> may be closed with <code>*)</code>. They do not nest (Turbo optionally nests them). An unterminated comment
+at end of file must produce a diagnostic pointing at the <i>opening</i> brace, not at EOF — that single
+detail is the difference between a five-second fix and a ten-minute hunt for the user.</li>
+</ul>
+
+<p>Minor but real: <code>$FF</code> or <code>16#FF</code> hex forms depending on dialect; character literals <code>#13</code>;
+string literals with <code>''</code> as an embedded apostrophe; the fact that a one-character string literal
+<code>'a'</code> is a <code>char</code> in Pascal, which makes literal typing context-dependent — a decision you should
+take in Part 8, not here.</p>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>5.1 (1)</b> Write the DFA for numeric literals on paper before coding: integer, real with fraction, real
+with exponent, and the <code>..</code> escape. Then implement it and check your implementation against the
+drawing. Dragon &sect;3.4 is the technique.<br>
+<b>5.2 (1)</b> Property test: for a randomly generated token sequence, printing the tokens with a single
+space between them and re-lexing must yield the same sequence. This catches an entire class of
+lexer bug in twenty lines.<br>
+<b>5.3 (2)</b> Measure: lex a 100k-line synthetic file. If you are slower than about 10 MB/s you are probably
+allocating a <code>String</code> per token; intern identifiers into a symbol table of <code>Int</code> ids instead and
+measure again. (Worth doing once, for the lesson in how compilers actually spend time.)
+</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+Should the lexer or the parser decide that <code>'a'</code> is a <code>char</code> rather than a string? &mdash; Do you emit
+comments and whitespace as trivia attached to tokens (needed later for a formatter or an IDE) or
+discard them (simpler now)? What does that choice cost if you change your mind at M6? &mdash; Is the
+keyword/identifier distinction made in the DFA or by a table lookup after it, and which one does
+Wirth use, and why?</div>
+
+<div class="refs"><b>Reading</b>
+<span><b>Dragon</b> ch. 3 entire &mdash; &sect;3.3 regular expressions, &sect;3.4 recognition, &sect;3.6&ndash;3.7 NFA&rarr;DFA and minimisation. Read &sect;3.5 on Lex only to decide not to use it.</span>
+<span><b>Wirth</b> ch. 3 (regular languages) and the scanner in ch. 7 &mdash; roughly 60 lines of Oberon, for a complete language.</span>
+<span><b>Appel</b> ch. 2 &mdash; particularly the discussion of why longest-match plus rule priority is the right specification.</span>
+</div>
+</section>
+
+<!-- ============================== PART 6 ============================== -->
+<section class="part">
+<div class="part-num">Part 6</div>
+<h2 class="part-title">Parsing and the AST</h2>
+<div class="part-lede">Pascal was designed to be parsed by recursive descent by a human with a pencil. Take the gift.</div>
+
+<h4>Design decisions</h4>
+<ul>
+<li><b>Recursive descent</b> for declarations and statements, <b>precedence climbing</b> (Pratt) for
+expressions. Writing <code>factor</code>/<code>term</code>/<code>simpleExpression</code>/<code>expression</code> as four mutually recursive
+functions, the way the grammar is written, is also fine and is what Wirth does; precedence climbing
+is the same thing with the level as a parameter. Do the naive version first, then refactor to Pratt and
+notice they produce identical trees — that refactor is a good half-day of insight.</li>
+<li><b>An LL(1) check, mechanically.</b> Do not <i>assume</i> your grammar is LL(1). Compute FIRST and FOLLOW
+for every production with a small script over your grammar file and print the conflicts. Every conflict
+is either a bug in your grammar or a place your parser needs extra lookahead — and you want that list
+explicitly, not discovered one at a time by failing tests.</li>
+<li><b>Error recovery: FOLLOW-set panic mode.</b> Wirth's technique (ch. 7) is to pass each parsing
+procedure the set of tokens that may legally follow it, and to skip input until a token in that set
+appears. It is about thirty lines and gives good behaviour. Appel &sect;3.4's Burke&ndash;Fisher local repair is
+better and considerably more work; read it, implement it later if at all.</li>
+<li><b>AST shape.</b> Sealed interfaces and immutable data classes in Kotlin, one node type per construct,
+every node carrying a <code>NodeId</code> and a span. <b>Keep the results of later phases in side tables keyed by
+<code>NodeId</code></b> (<code>types: Map&lt;NodeId, Type&gt;</code>, <code>symbols: Map&lt;NodeId, Symbol&gt;</code>) instead of mutable
+fields on nodes. You get immutability, you can run a phase twice, you can throw a phase's results away,
+and you never wonder whether a field has been filled in yet. The cost is one indirection per lookup,
+which is free at this scale.</li>
+</ul>
+
+<div class="box trap"><span class="lbl">Traps</span>
+<b>Dangling else</b> — the grammar is ambiguous; the rule is &ldquo;bind to the nearest unmatched <code>if</code>&rdquo;, which
+recursive descent gives you for free simply by consuming <code>else</code> greedily in the inner call. Know that
+you relied on an implementation accident and write the test.<br>
+<b>Error recovery that does not consume input</b> loops forever. Invariant: every iteration of a recovery
+loop either consumes a token or exits. Assert it.<br>
+<b>Semicolons.</b> Pascal's <code>;</code> is a separator, not a terminator, so <code>begin a; b; end</code> contains an empty
+statement — legal, and the source of the classic &ldquo;<code>;</code> before <code>else</code>&rdquo; error. Decide whether to warn.
+</div>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>6.1 (2)</b> Write the FIRST/FOLLOW calculator over your own grammar file and commit the conflict report
+as a golden test. When you extend the grammar later, a new conflict shows up in a diff.<br>
+<b>6.2 (1)</b> Take twenty programs from your corpus, delete one token from each at random, and require
+exactly one diagnostic and a complete parse tree for the rest of each file. This is the fastest way to
+find out whether your recovery is real.<br>
+<b>6.3 (2)</b> Implement an AST pretty-printer, then a property test: <code>parse(print(parse(src))) == parse(src)</code>.
+Cheap, and it catches precedence and associativity errors that eyeball tests miss.<br>
+<b>6.4 (1)</b> Ambiguity hunt: find two different grammars for Pascal expressions, one ambiguous and one not,
+and explain in a paragraph why precedence climbing resolves the ambiguity without changing the grammar.
+</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+Do you want a concrete syntax tree (every token, including punctuation and comments) as well as an
+abstract one? It is what makes a formatter, an IDE and refactoring possible, and it roughly doubles the
+size of Part 6. What is it worth to <i>this</i> project? &mdash; Where do you put the boundary between &ldquo;the parser
+rejects it&rdquo; and &ldquo;the parser accepts it and a later check rejects it&rdquo;? Consider <code>const 9n = 0</code>: is
+that a lexical error, a syntax error, or a semantic one, and which produces the most helpful message?</div>
+
+<div class="refs"><b>Reading</b>
+<span><b>Wirth</b> ch. 2, 4, 7 &mdash; deterministic parsing conditions and the complete Oberon-0 parser. The clearest exposition of recursive descent in print.</span>
+<span><b>Dragon</b> &sect;4.4 (predictive parsing, FIRST/FOLLOW, tables), &sect;4.4.5 (panic-mode recovery). Skim &sect;4.5&ndash;4.9 (LR) for literacy; you will not write an LR parser here.</span>
+<span><b>Appel</b> ch. 3 (esp. &sect;3.2 predictive parsing and &sect;3.4 error recovery) and ch. 4 (abstract syntax &mdash; note his separation of abstract from concrete syntax, and the visitor question).</span>
+<span><b>Pierce</b> ch. 3 &mdash; not about parsing, but the place to learn the inductive-definition style you will use to specify the AST and prove things about traversals.</span>
+</div>
+</section>
+
+<!-- ============================== PART 7 ============================== -->
+<section class="part">
+<div class="part-num">Part 7</div>
+<h2 class="part-title">Scopes, symbols and nesting</h2>
+<div class="part-lede">Pascal's nested procedures are its defining feature and the place where the JVM will fight you hardest. Decide the strategy here, in the front end, and make the back end's job mechanical.</div>
+
+<h4>Deliverable</h4>
+<p>Every identifier occurrence resolved to a symbol, or diagnosed. A dump format for scopes that you can
+golden-test. A computed <i>escape</i> flag on every local variable.</p>
+
+<h3>The problem</h3>
+<p>A procedure nested inside another can read and write the outer procedure's locals:</p>
+<pre><code>procedure Outer;
+var total: integer;          { lives in Outer's frame }
+  procedure Add(x: integer);
+  begin
+    total := total + x       { non-local access, one level up }
+  end;
+begin total := 0; Add(5); writeln(total) end;</code></pre>
+<p>On a conventional machine you solve this with a <b>static link</b> (a pointer in each frame to the frame of
+the lexically enclosing procedure) or a <b>display</b> (an array indexed by nesting depth). Wirth ch. 12 and
+Dragon &sect;7.3 both cover this; Appel ch. 6 is the most complete treatment and is where you should start.</p>
+
+<p>The JVM gives you neither: a method has locals, and nothing else can reach them. Your options:</p>
+
+<table>
+<tr><th style="width:34mm">Strategy</th><th>What it means</th><th style="width:52mm">Cost</th></tr>
+<tr><td><b>Heap frame objects</b></td>
+    <td>Each procedure whose locals are captured gets a generated class <code>Outer$Frame</code> with a field per
+        captured variable; inner procedures become static methods taking the frame as an extra parameter,
+        plus its own parent chain for deeper nesting.</td>
+    <td>One allocation per activation of an enclosing procedure; field access instead of local access.
+        Simple, uniform, obviously correct.</td></tr>
+<tr><td><b>Lambda lifting</b><br><span class="small">(closure conversion)</span></td>
+    <td>Add each captured variable as an extra parameter to the inner procedure, and thread it through
+        all call sites. Classic; see Appel ch. 15.</td>
+    <td>Only works directly for variables that are read, not assigned — an assignment must be visible to
+        the outer frame, so a mutable captured variable still needs a cell. Parameter lists can explode
+        under deep nesting.</td></tr>
+<tr><td><b>Everything on the heap</b></td>
+    <td>Every local of every procedure becomes a field of a frame object.</td>
+    <td>Trivially correct, uniformly slow, and it defeats HotSpot's register allocation. Do not.</td></tr>
+</table>
+
+<div class="box note"><span class="lbl">Recommendation</span>
+Heap frame objects, <b>plus an escape analysis so that only actually-captured variables move</b>. In
+practice the overwhelming majority of locals in real Pascal are never touched by an inner procedure, so
+they stay in JVM locals where HotSpot can put them in registers. Escape analysis here is ten lines —
+walk the body of each nested procedure, mark every non-local symbol it references — and it is the same
+analysis you need for <code>var</code> parameters (Part 8) and again in stage 2 for scalar replacement. It is
+the highest value-per-line of code in the whole front end.</div>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>7.1 (1)</b> Implement the escape marking and print a report: for your corpus, what fraction of locals
+escape? (Predict the number before you run it. The gap between your prediction and the result is the
+lesson.)<br>
+<b>7.2 (2)</b> Implement the parent-chain walk for a variable referenced three levels up, and write the
+test program that exercises it &mdash; including recursion in the middle procedure, which is where a naive
+implementation that keeps &ldquo;the&rdquo; frame of a procedure in a static field breaks.<br>
+<b>7.3 (1)</b> Read Appel &sect;6.2 on displays and write half a page on why a display is faster than a static
+chain, and why nobody uses one today. (Hint: it is about recursion and about how deep real nesting
+actually goes.)
+</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+Pascal permits a procedure to be passed as a parameter (a procedural parameter). If you allow it,
+a procedure value is a pair (code, frame) — a closure. Does your strategy still work, and does the
+answer change which strategy you should pick <i>now</i>? &mdash; What happens to the frame object when the
+outer procedure returns while an inner procedure is still reachable? In Pascal it cannot be (no upward
+funargs), so the frame is stack-allocatable in principle — can you express that fact to the JVM, and
+does HotSpot's escape analysis find it for you? &mdash; How do you handle a <code>forward</code> declaration:
+one symbol with two declaration sites, or two symbols that must be unified?</div>
+
+<div class="refs"><b>Reading</b>
+<span><b>Appel</b> ch. 6 entire (frames, static links, escape analysis &mdash; his <code>escape</code> pass is exactly Task 7.1), ch. 15 for closure conversion.</span>
+<span><b>Wirth</b> ch. 12 &mdash; procedures and the concept of locality; the static link done minimally.</span>
+<span><b>Dragon</b> &sect;7.1&ndash;7.3 &mdash; activation records, stack allocation, access to non-local data. &sect;7.3.5&ndash;7.3.8 covers displays.</span>
+<span><b>Pierce</b> ch. 6 (nameless terms / de Bruijn indices) &mdash; the theoretical version of &ldquo;a variable is a nesting depth plus an offset&rdquo;, which is literally your static-link representation.</span>
+</div>
+</section>
+
+<!-- ============================== PART 8 ============================== -->
+<section class="part">
+<div class="part-num">Part 8</div>
+<h2 class="part-title">Types and semantic analysis</h2>
+<div class="part-lede">The longest milestone, and the one where Pierce earns his place on your shelf. Write the rules down in inference-rule notation first; implement them second; the implementation then has a specification to be wrong against.</div>
+
+<h4>Deliverable</h4>
+<p>A type for every expression, a diagnostic for every ill-typed program in the reject corpus, and a
+document — half a dozen pages — containing your typing rules.</p>
+
+<h3>Write the rules down</h3>
+<p>Pascal is simply typed, so the whole type system fits in a few pages of judgements in Pierce's notation.
+Start with the environment and the shape of the judgement:</p>
+<pre><code>&Gamma; &vdash; e : &tau;            "in context &Gamma;, expression e has type &tau;"
+&Gamma; &vdash; s ok            "in context &Gamma;, statement s is well formed"
+
+                &Gamma; &vdash; a : array[&iota;] of &tau;      &Gamma; &vdash; i : &iota;'      &iota;' &#8818; &iota;
+(T-Index)      ----------------------------------------------------
+                        &Gamma; &vdash; a[i] : &tau;
+
+                &Gamma; &vdash; l : &tau;&#8321;  lvalue(l)     &Gamma; &vdash; e : &tau;&#8322;     &tau;&#8322; &#8818; &tau;&#8321;
+(T-Assign)     ----------------------------------------------------
+                             &Gamma; &vdash; l := e ok</code></pre>
+<p>The interesting content is entirely in the relation written <span style="font-family:monospace">&#8818;</span> — Pascal's
+<b>assignment compatibility</b>, which is <i>not</i> type identity and <i>not</i> subtyping in Pierce's sense. It
+says roughly: identical types are compatible; <code>integer</code> is compatible with <code>real</code> (with an implicit
+widening); a subrange is compatible with its host type and vice versa <i>subject to a runtime check</i>; a
+set type is compatible with another set type whose base types are compatible; strings of equal length
+are compatible. Writing this relation out precisely, as rules, is the single most valuable half-day in
+Part 8 — and it will expose at least three cases you had not thought about.</p>
+
+<div class="box note"><span class="lbl">Why this is not subtyping</span>
+In a subtyping system (Pierce ch. 15) <code>S &lt;: T</code> means every value of <code>S</code> <i>is</i> a value of <code>T</code>, and
+coercion is free. Pascal's subrange compatibility is different: assigning <code>integer</code> to <code>0..9</code> is
+permitted by the type system but may <i>fail at runtime</i>. It is a checked coercion, closer to a cast with
+a proof obligation than to subsumption. Notice what this means for you: the type checker's job is not
+only to accept or reject, but to <b>record where a runtime check is required</b> — and that record is what
+the optimiser will later try to discharge statically (Part 10). Make the check an explicit node in HIR
+at the moment the type rule licenses it; do not leave it implicit for the back end to remember.</div>
+
+<h3>The checklist</h3>
+<p>Semantic analysis is a long list of small rules, and the way to not miss any is to keep the list. At
+minimum: undeclared identifier; duplicate declaration in one scope; type identity for <code>var</code>-parameter
+arguments (compatibility is <i>not</i> enough — a <code>var</code> parameter requires an identical type and an
+lvalue argument); assignment to a <code>const</code>; assignment to a <code>for</code>-loop control variable inside its own
+loop (ISO forbids it; a nice check to implement because it needs a small scope-like stack of &ldquo;currently
+controlled&rdquo; variables); a function that never assigns its result; argument count and kind; <code>case</code>
+label duplication and type agreement with the selector; set element ordinality and base range; array
+index type must be ordinal and bounds must be constant; enumeration constant scope leakage;
+<code>with</code>-statement field injection and its shadowing rules; the required-procedure special cases.</p>
+
+<div class="box trap"><span class="lbl"><code>write</code> and <code>writeln</code> are not procedures</span>
+They are variadic, they accept arguments of several unrelated types, they accept the
+<code>value : width : digits</code> syntax that appears nowhere else in the grammar, and <code>writeln</code> takes an
+optional first argument that is a file. No user procedure can be declared like that. Do not try to make
+them fit your ordinary call-checking path; give them a dedicated checker and a dedicated HIR node.
+Every Pascal implementation does this, and discovering why is worth an hour of trying not to.</div>
+
+<div class="box trap"><span class="lbl">Type identity in Pascal is by name, mostly</span>
+<code>type A = array[1..10] of integer; B = array[1..10] of integer;</code> — are <code>A</code> and <code>B</code> the same type?
+In ISO Pascal, no: they are distinct types and not assignment compatible, though they are structurally
+identical. But an anonymous type written inline in two <code>var</code> declarations is also two distinct types,
+which is why <code>var x, y: array[1..10] of integer;</code> makes <code>x</code> and <code>y</code> compatible (one declaration,
+one type) but splitting the line into two makes them incompatible. Implement types as interned objects
+with identity, created once per syntactic type denoter, and this falls out for free. Get it wrong and
+you will rediscover it via a very confusing bug.</div>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>8.1 (2)</b> Write out the assignment-compatibility relation as inference rules, then implement
+<code>assignable(from: Type, to: Type): Compatibility</code> returning <i>ok</i> / <i>ok-with-check</i> /
+<i>ok-with-conversion</i> / <i>no</i>. Property test: generate random type pairs and assert the
+implementation agrees with a second, deliberately naive, direct transcription of the rules.<br>
+<b>8.2 (2)</b> Build the compile-time constant evaluator as its own module returning a
+<code>ConstValue</code>. You need it for array bounds, subrange bounds, <code>case</code> labels and <code>const</code>
+declarations — and you will reuse it verbatim as the constant-folding core of your optimiser. Getting
+that reuse is the point of the exercise.<br>
+<b>8.3 (3)</b> Pierce ch. 8: state and prove <i>progress</i> and <i>preservation</i> for a tiny fragment of your
+language (integers, booleans, variables, assignment, <code>if</code>, <code>while</code>). Write the small-step
+operational semantics first. This is the exercise that converts &ldquo;my type checker seems to work&rdquo; into
+&ldquo;I know what my type checker guarantees&rdquo; — and the answer for Pascal is interesting, because with
+subranges and uninitialised variables you <i>cannot</i> prove the usual progress theorem. Working out
+precisely which hypothesis fails is the lesson.<br>
+<b>8.4 (1)</b> Pierce ch. 13 is about references. Read it, then write a paragraph mapping Pascal's
+<code>var</code> parameters and <code>^T</code> pointers onto his <code>Ref T</code> / <code>!</code> / <code>:=</code> — including what his store
+typing corresponds to in your compiler, and why Pascal's restriction that you cannot take the address
+of an arbitrary expression makes your life easier than his.
+</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+Is <code>packed</code> part of a type's identity? (ISO says it is.) &mdash; If <code>integer</code> is 32-bit and <code>real</code> is
+64-bit, is <code>integer &rarr; real</code> lossless? For 64-bit integers it would not be; what does your standard
+say, and what will you do when stage 2's VM has different word sizes? &mdash; Do you allow a subrange of an
+enumeration as an array index type, and what is the resulting array's length? &mdash; What is the type of
+<code>'a'</code>, and of <code>'ab'</code>, and what does that imply about assigning <code>'a'</code> to a
+<code>packed array[1..1] of char</code>?</div>
+
+<div class="refs"><b>Reading</b>
+<span><b>Pierce</b> ch. 3 (inductive definitions, operational semantics, the proof style), ch. 8&ndash;9 (typed arithmetic; STLC; progress and preservation), ch. 11 (&sect;11.7&ndash;11.9 records and variants; &sect;11.12 general recursion), <b>ch. 13 (references)</b>, ch. 14 (exceptions &mdash; your runtime errors), ch. 15&ndash;16 (subtyping, and why Pascal's relation is not it), ch. 19 (Featherweight Java &mdash; read before Part 11).</span>
+<span><b>Appel</b> ch. 5 &mdash; symbol tables, type representation, and the pragmatics of reporting type errors without cascading.</span>
+<span><b>Wirth</b> ch. 5 (attributed grammars) and ch. 8 (context specified by declarations) &mdash; the pragmatic minimum, and a useful counterweight to Pierce's rigour.</span>
+<span><b>Dragon</b> ch. 5 (syntax-directed definitions &mdash; the right framework for structuring these passes), &sect;6.3&ndash;6.5 (types and declarations, type checking, coercions).</span>
+</div>
+</section>
+
+<!-- ============================== PART 9 ============================== -->
+<section class="part">
+<div class="part-num">Part 9</div>
+<h2 class="part-title">HIR: desugaring and lowering</h2>
+<div class="part-lede">A short phase that pays for itself by deleting language features. Everything you desugar here is a feature neither back end ever has to know about.</div>
+
+<h4>What HIR removes</h4>
+<ul>
+<li><code>for</code> loops &rarr; explicit initialise / test / body / increment (see the trap below — this is not as
+    easy as it looks).</li>
+<li><code>with</code> statements &rarr; a temporary holding the record reference, and fully qualified field accesses.</li>
+<li><code>repeat</code> &rarr; a loop with the test at the bottom; <code>case</code> &rarr; a multiway-branch node on an
+    ordinal, with the labels normalised to integers.</li>
+<li>Implicit conversions &rarr; explicit <code>Convert</code> nodes; implicit range checks &rarr; explicit <code>Check</code>
+    nodes; string literal padding; set construction from element lists.</li>
+<li>Nested procedures &rarr; flat list of procedures with explicit frame parameters (the decision from Part 7
+    is <i>applied</i> here).</li>
+<li><code>var</code> parameters &rarr; explicit cell/reference passing.</li>
+<li>Named constants &rarr; literals; constant expressions &rarr; values.</li>
+</ul>
+
+<div class="box trap"><span class="lbl">The <code>for</code> loop is a trap, and a good exercise</span>
+Pascal's <code>for i := a to b do S</code> is not C's <code>for</code>. (1) <code>a</code> and <code>b</code> are evaluated <b>once</b>, before
+the loop. (2) If <code>a &gt; b</code> the body never executes. (3) The control variable is undefined after the
+loop — you may not read it. (4) The body may not assign to it. And the one that catches everyone:
+(5) if <code>b</code> is the largest value of the control variable's type, the obvious lowering
+<code>i := a; while i &lt;= b do begin S; i := i + 1 end</code> <b>overflows or loops forever</b> on the last
+iteration. The correct shape is a bottom-tested loop guarded by an initial <code>a &lt;= b</code> test, with the
+increment guarded by <code>i &lt;&gt; b</code>:
+<pre><code>if a &lt;= b then begin
+  i := a;
+  loop: S; if i = b then goto done; i := succ(i); goto loop;
+  done:
+end</code></pre>
+Write the test with <code>b = maxint</code> before you write the lowering. Then check what your favourite
+real compiler does with it.</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+Is HIR a separate data type, or is it &ldquo;the AST with some node kinds forbidden&rdquo;? The first costs you a
+second tree definition and a translation; the second costs you an invariant that is not checked by the
+type system. Which mistake would you rather debug? &mdash; Should HIR be typed (every node carries its
+<code>Type</code>) or is the type information consumed and discarded by lowering? Consider stage 2, where an
+adaptive VM might want source types for specialisation. &mdash; Does any optimisation belong at HIR level
+rather than MIR? (Consider: <code>with</code>-common-subexpressions, string-literal interning, and inlining of
+trivially small procedures — inlining before closure conversion can be much more effective.)</div>
+
+<div class="refs"><b>Reading</b>
+<span><b>Appel</b> ch. 7 &mdash; translation to intermediate representation; the discussion of why an IR tree is simpler than the AST and what &ldquo;lower&rdquo; means.</span>
+<span><b>Dragon</b> &sect;6.1 (variants of syntax trees), &sect;6.4 (translation of expressions), &sect;6.9 (intermediate code for procedures).</span>
+</div>
+</section>
+
+<!-- ============================== PART 10 ============================== -->
+<section class="part">
+<div class="part-num">Part 10</div>
+<h2 class="part-title">MIR: control-flow graph, SSA, and the optimiser</h2>
+<div class="part-lede">The part of the project where you will learn the most, and the part where it is easiest to waste six months producing no measurable improvement. Both facts are worth taking seriously.</div>
+
+<h3>The representation</h3>
+<p>A program is a list of procedures; a procedure is a set of basic blocks with a single entry; a block is a
+list of instructions ending in exactly one terminator. Instructions are three-address and define at most
+one value. In SSA form each value is defined exactly once and blocks begin with &phi;-nodes.</p>
+
+<pre><code>proc Sum(n: i32) -> i32 {
+bb0:
+    v0 = const 0
+    br bb1
+bb1:                                  ; phis first, always
+    v1 = phi [v0, bb0], [v4, bb2]     ; total
+    v2 = phi [const 1, bb0], [v5, bb2]; i
+    v3 = icmp.sle v2, n
+    br v3, bb2, bb3
+bb2:
+    v4 = add.ovf v1, v2               ; checked add: traps on overflow
+    v5 = add v2, 1
+    br bb1
+bb3:
+    ret v1
+}</code></pre>
+
+<h4>Four decisions that will matter later</h4>
+<ul>
+<li><b>Safety checks are instructions, not implicit behaviour.</b> <code>check.range v, lo, hi</code>,
+<code>check.index a, i</code>, <code>check.nil p</code>, <code>add.ovf</code>. If a check is implicit in the semantics of
+<code>store</code>, no pass can ever remove it. If it is an instruction, removing it is just dead-code
+elimination once an analysis proves the condition.</li>
+<li><b>Aggregates stay structured.</b> No address arithmetic, no <code>load [base + 4*i + 8]</code>. Use
+<code>elem a, i</code> and <code>field r, 3</code>. Appel and Dragon both lower to address arithmetic because they
+target real machines; the JVM cannot express it, and your stage-2 VM does not have to either. This is
+the main place where you should deliberately deviate from the books, and knowing <i>why</i> you are
+deviating is the point.</li>
+<li><b>Keep a source position and a live-variable map on every instruction that can trap.</b> You do not
+need them in stage 1 beyond error messages. In stage 2 they become your deoptimisation metadata, and
+retrofitting them into an optimiser that has already destroyed the mapping is genuinely painful. This
+is the cheapest thing you can do now to make stage 2 possible later.</li>
+<li><b>SSA construction algorithm.</b> Cytron et al.'s dominance-frontier algorithm is what Appel ch. 19
+and Dragon &sect;9.5.1 teach, and you should understand it. But for a hand-written compiler, Braun et
+al. (2013), &ldquo;Simple and Efficient Construction of SSA Form&rdquo;, builds SSA directly during IR
+construction with no dominance computation at all, in about 150 lines. Recommendation: implement
+Cytron once as a learning exercise, then use Braun in the real pipeline, and write down which you
+would choose for a production compiler and why.</li>
+</ul>
+
+<h3>Passes, and whether they pay</h3>
+<table>
+<tr><th style="width:44mm">Pass</th><th>What it buys you on the JVM</th><th style="width:22mm">Priority</th></tr>
+<tr><td>Sparse conditional constant propagation (SCCP)</td><td>Folds constants <i>and</i> prunes unreachable branches in one fixpoint; strictly stronger than doing either alone. Feeds every other pass.</td><td>High</td></tr>
+<tr><td>Dead code elimination</td><td>Mostly cleans up after other passes; also removes your own redundant checks once they are proved.</td><td>High</td></tr>
+<tr><td>Range / value analysis + <b>check elimination</b></td><td>The big one. Subrange assignments and array indexing generate checks that HotSpot cannot remove because it does not know your language's invariants. This is a pass that is <i>yours to win</i>.</td><td>High</td></tr>
+<tr><td>Global value numbering / CSE</td><td>Real but modest; C2 does local CSE well. Wins where your lowering created redundancy the source did not have (index computations, frame accesses).</td><td>Medium</td></tr>
+<tr><td>Inlining (small procedures, after flattening)</td><td>Enables everything else, and lets you delete frame objects. C2 also inlines — but only what it can see as hot, and only after warm-up.</td><td>Medium</td></tr>
+<tr><td>Loop-invariant code motion</td><td>Measure it. On HotSpot, expect close to zero for simple loops. Implement it anyway — you need it for stage 2 — but let the measurement teach you something about where optimisation belongs in a two-tier system.</td><td>Medium</td></tr>
+<tr><td>Self-tail-call &rarr; loop</td><td>The JVM has no tail calls, so a deeply recursive Pascal program overflows the Java stack. Converting direct self-recursion into a loop is a correctness-adjacent win.</td><td>Medium</td></tr>
+<tr><td>Peephole / algebraic simplification</td><td>Cheap, satisfying, and almost entirely redundant with what C2 does. Good for learning; do not expect numbers.</td><td>Low</td></tr>
+<tr><td>Register allocation</td><td>Not needed for the JVM at all (it has an operand stack and numbered locals). You still want <b>liveness</b> for local-slot reuse and for stage 2.</td><td>Stage 2</td></tr>
+</table>
+
+<div class="box note"><span class="lbl">The lesson hiding in this table</span>
+You are compiling to a platform that already has a world-class optimising compiler underneath it. That
+makes stage 1 an unusually honest laboratory: any pass you write either beats C2 at something C2 cannot
+know (language-level invariants, checks, allocation, frames) or it measures as noise. Do the
+measurements, write the numbers in the repository, and you will understand the division of labour
+between a static compiler and a JIT far better than any chapter can teach you — which is precisely the
+knowledge stage 2 requires.</div>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>10.1 (2)</b> Implement dominators (the simple iterative Cooper&ndash;Harvey&ndash;Kennedy algorithm is a page long
+and fast enough), then dominance frontiers, then Cytron SSA. Verify with an SSA checker: every use
+dominated by its def, every &phi; operand count equal to the predecessor count.<br>
+<b>10.2 (2)</b> Implement SCCP. Then build the test that matters: the optimised and unoptimised programs
+must produce identical output on the whole corpus (<i>metamorphic testing</i> — no oracle needed). Wire
+it into CI; it will catch more optimiser bugs than any hand-written test you write.<br>
+<b>10.3 (3)</b> Range analysis over SSA, then check elimination. Measure: how many of the checks emitted
+by the front end can you remove on your benchmarks? Report the percentage. This single number is the
+best summary of your optimiser's value.<br>
+<b>10.4 (1)</b> Take one benchmark, dump HotSpot's own output with
+<code>-XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly</code> (with hsdis) or at least
+<code>-XX:+PrintCompilation -XX:+PrintInlining</code>, and see what C2 did to your bytecode. Spending an
+afternoon here will change how you think about your own optimiser.
+</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+What is your pass ordering, and why? (There is no optimal order; there is the &ldquo;phase-ordering problem&rdquo;.
+Dragon &sect;9.x and Muchnick discuss it.) &mdash; Should passes run to a fixpoint, and how do you stop a
+pass pair oscillating? &mdash; How do you know a pass is correct? Metamorphic testing catches
+miscompilation, but what catches a pass that silently does nothing? (Answer: a golden MIR test per
+pass — and this is where the textual IR from Part 2 pays for itself again.) &mdash; Your checks trap. Does
+that make them side-effecting, and therefore unmovable by LICM? What extra information would let you
+hoist a check out of a loop safely?</div>
+
+<div class="refs"><b>Reading</b>
+<span><b>Appel</b> ch. 17 (data-flow analysis), 18 (loop optimisations, dominators, induction variables), <b>19 (SSA &mdash; the core chapter for this part)</b>, ch. 8 (basic blocks and traces) for CFG construction and block ordering.</span>
+<span><b>Dragon</b> &sect;6.2.4 (SSA introduced), ch. 8 &sect;8.4&ndash;8.5 (flow graphs, DAG representation of blocks), &sect;8.7 (peephole), ch. 9 entire &mdash; &sect;9.2&ndash;9.3 data-flow frameworks and their lattices, &sect;9.4 constant propagation, &sect;9.5 partial redundancy, &sect;9.6 loops and dominators.</span>
+<span><b>Wirth</b> final chapter on optimisation and front/back-end structure &mdash; deliberately modest; read it as a counterweight when you are tempted by a fourth analysis pass.</span>
+<span>Beyond the books: Cytron et al. 1991 (SSA); Braun et al. 2013 (simple SSA); Wegman &amp; Zadeck 1991 (SCCP); Muchnick, <i>Advanced Compiler Design and Implementation</i>, for anything the above leave vague.</span>
+</div>
+</section>
+
+<!-- ============================== PART 11 ============================== -->
+<section class="part">
+<div class="part-num">Part 11</div>
+<h2 class="part-title">The Jasmin back end</h2>
+<div class="part-lede">A stack machine is the easiest code-generation target in existence, right up until the verifier disagrees with you. Most of this part is about making the verifier your test oracle instead of your enemy.</div>
+
+<h4>Deliverable</h4>
+<p>A back end that turns MIR into <code>.j</code> text, plus the toolchain step that assembles it, plus a runtime
+library in Kotlin that the generated code calls.</p>
+
+<h3>The shape of the output</h3>
+<pre><code>.bytecode 49.0                     ; see the verifier trap below
+.source  hello.pas
+.class public Hello
+.super   java/lang/Object
+
+.method public static main([Ljava/lang/String;)V
+  .limit stack 2
+  .limit locals 1
+  .line 1
+  getstatic    java/lang/System/out Ljava/io/PrintStream;
+  bipush       42
+  invokevirtual java/io/PrintStream/println(I)V
+  return
+.end method</code></pre>
+<p>Program &rarr; one public class. Global variables &rarr; static fields. Procedures and functions &rarr; static
+methods (they are all statically bound; you have no objects). Nested procedures &rarr; static methods taking
+a frame parameter, per Part 7. The main program body &rarr; <code>main([Ljava/lang/String;)V</code>.</p>
+
+<div class="box trap"><span class="lbl">The verifier trap, and why <code>.bytecode 49.0</code> is on the first line</span>
+Class files of version 50 (Java 6) and above are verified by the <i>type-checking</i> verifier, which requires
+a <code>StackMapTable</code> attribute on every method with branches: for each jump target, an explicit
+description of the types on the operand stack and in the locals. Computing those correctly is a
+data-flow analysis with a type lattice including <code>uninitialized</code> and merge rules over class
+hierarchies — a real project in itself, and a dreadful thing to debug while also debugging your code
+generator. Class files of version 49 and below use the older <i>inference</i> verifier, which computes the
+same information itself and needs no attribute. So: emit <b>49.0</b> and the whole problem disappears.
+Modern JVMs still load version 45&ndash;49 class files. Do not plan to use <code>-noverify</code>/<code>-Xverify:none</code>
+instead: it is obsolete and ignored on current JDKs. If you later want modern class files, switch from
+Jasmin to ASM with <code>ClassWriter.COMPUTE_FRAMES</code> and let the library do it. (That switch is itself a
+good week of work and teaches you what the attribute contains.)</div>
+
+<div class="box trap"><span class="lbl">Three more things the verifier will catch, painfully</span>
+<b><code>.limit stack</code> / <code>.limit locals</code></b> must be at least the true maxima. Compute the stack limit by
+abstract interpretation over your CFG: the stack depth at a block's entry must be the same on every
+incoming edge — assert that, because a mismatch is also a verify error and your own assertion has a much
+better message than <code>VerifyError: Inconsistent stack height</code>.<br>
+<b>Category-2 values.</b> <code>long</code> and <code>double</code> occupy <b>two</b> local slots and two stack words. A slot
+allocator that assumes one slot per variable produces code that verifies for a while and then does not.
+Write the test with a <code>real</code> local between two <code>integer</code> locals.<br>
+<b>Stack discipline across jumps.</b> Your local <code>goto</code> is only safe between statement boundaries, where
+the operand stack is empty. Assert &ldquo;stack is empty at every statement boundary&rdquo; in the emitter; it makes
+an entire class of bug impossible.</div>
+
+<h3>Boolean expressions: the single most useful idea in Appel</h3>
+<p>How do you compile <code>if (a &lt; b) and (c &lt; d) then S</code>? Naively: compute <code>a &lt; b</code> as a 0/1 value on the
+stack, compute <code>c &lt; d</code>, <code>iand</code>, then <code>ifeq</code> past the body. That works and is bad code — the JVM has
+no comparison instruction that produces a boolean, so each comparison becomes a branch, two loads and a
+jump. Appel &sect;7.2's answer is to give the translator three kinds of result:</p>
+<ul>
+<li><b>Ex</b> — an expression producing a value;</li>
+<li><b>Nx</b> — a statement producing nothing;</li>
+<li><b>Cx</b> — a <i>conditional</i>: something that, given a true-label and a false-label, jumps to one of them.</li>
+</ul>
+<p>with conversions between them. A comparison is naturally a <b>Cx</b>; <code>and</code> of two Cx's is a Cx that
+threads the labels; and only when a boolean genuinely needs to be a value (stored in a variable, passed
+as an argument) do you convert Cx &rarr; Ex by materialising 0 or 1 around a branch. The generated code for
+the example above becomes two compare-and-branch instructions and no arithmetic at all. Implement this;
+it is perhaps 100 lines and it is the difference between a toy code generator and a real one.</p>
+
+<div class="box q"><span class="lbl">A semantic question you must answer first</span>
+The Cx translation naturally <b>short-circuits</b>. ISO Pascal does <i>not</i> require short-circuit
+evaluation of <code>and</code>/<code>or</code>, and does not require full evaluation either — it leaves the order
+unspecified, which means <code>(p &lt;&gt; nil) and (p^.x = 1)</code> is not portable Pascal even though every
+practical compiler makes it work. Turbo Pascal has a switch (<code>$B</code>). So: which do you implement, do
+you offer both, and if you offer both, does the choice live in the front end (different HIR) or the back
+end (different code for the same HIR)? Whichever you pick, note that a program's <i>meaning</i> now depends
+on it, so it belongs in <code>DEVIATIONS.md</code> and in a test.</div>
+
+<h3>A dozen mapping decisions</h3>
+<table>
+<tr><th style="width:33mm">Pascal</th><th>JVM representation</th><th style="width:56mm">The catch</th></tr>
+<tr><td><code>integer</code>, subranges, enums, <code>boolean</code>, <code>char</code></td><td><code>int</code> on the stack (<code>Z</code>, <code>C</code>, <code>B</code>, <code>S</code> in descriptors)</td><td>All ordinals are <code>int</code> in the JVM's operand stack. Keep the Pascal type in MIR; the back end knows the JVM does not distinguish.</td></tr>
+<tr><td><code>real</code></td><td><code>double</code></td><td>Two slots. Also: Pascal's <code>trunc</code>/<code>round</code> vs <code>d2i</code> semantics differ at the boundaries.</td></tr>
+<tr><td><code>array[lo..hi] of T</code></td><td>Java array of length <code>hi-lo+1</code>; index as <code>i - lo</code></td><td>The subtraction can defeat HotSpot's bounds-check elimination. But see the note below: it can also <i>give</i> you bounds checking for free.</td></tr>
+<tr><td>Multi-dimensional arrays</td><td>Nested Java arrays, or one flat array with computed index</td><td>Nested is simpler and matches <code>a[i][j]</code>; flat is faster and is what you need if you ever want a row to be a value rather than a reference. Pascal array assignment copies — so nested arrays need a deep copy on assignment. Decide, and test <code>a := b</code> for a 2-D array.</td></tr>
+<tr><td><code>record</code></td><td>A generated class with public fields</td><td>Assignment copies in Pascal. You need a generated <code>clone</code>-like copy. Nested records copy deeply.</td></tr>
+<tr><td><code>set of T</code></td><td><code>long</code> for &le;64 elements, <code>long[]</code> otherwise</td><td><code>set of char</code> is 256 bits = <code>long[4]</code>. Implement <code>+ - * &lt;= in</code> as bit operations; this is one of the few places you can dramatically beat a naive implementation.</td></tr>
+<tr><td><code>string</code> / <code>packed array of char</code></td><td><code>char[]</code> (fixed length) or <code>String</code></td><td>ISO strings are fixed-length and blank-padded; <code>String</code> is not. Using <code>String</code> is tempting and subtly wrong for a standard-conforming compiler.</td></tr>
+<tr><td><code>^T</code>, <code>new</code>, <code>dispose</code></td><td>Object reference, <code>new</code>, no-op</td><td><code>nil</code> is <code>null</code>; a nil dereference is a <code>NullPointerException</code> you must catch and re-report as a Pascal runtime error with a line number.</td></tr>
+<tr><td><code>var</code> parameter</td><td>A one-element array, or a generated <code>IntRef</code>-style cell, or (array, index) pair</td><td>The argument may be <code>a[i]</code>: evaluate <code>i</code> exactly once, then alias the slot. Copy-in/copy-out is <i>not</i> equivalent when aliasing is observable — construct the program that distinguishes them (Task 11.3).</td></tr>
+<tr><td><code>case</code></td><td><code>tableswitch</code> or <code>lookupswitch</code></td><td>Choose by label density; the usual heuristic is table if <code>(max-min+1) &le; 2&times;count</code> or so. Measure once and write the number down.</td></tr>
+<tr><td>Local <code>goto</code></td><td><code>goto</code></td><td>Safe only where the operand stack is empty.</td></tr>
+<tr><td>Non-local <code>goto</code></td><td>Throw a dedicated exception caught in the target frame</td><td>The frame must be identified dynamically (which activation?), which is why this is in the &ldquo;Later&rdquo; bucket.</td></tr>
+<tr><td><code>text</code> files, <code>read</code>/<code>write</code></td><td>Runtime library over <code>System.in</code>/<code>out</code></td><td>Pascal's <code>read</code> tokenising and <code>eoln</code>/<code>eof</code> semantics are fussier than they look. See M9.</td></tr>
+</table>
+
+<div class="box note"><span class="lbl">A trick worth considering, and arguing about</span>
+If you emit <code>i - lo</code> as the index and let the JVM's own array bounds check fire, then an out-of-range
+Pascal index becomes an <code>ArrayIndexOutOfBoundsException</code>, which you catch at the procedure boundary
+and re-report. You get bounds checking for free, with zero emitted instructions, optimised by C2. The
+costs: the exception message is in terms of the shifted index, you cannot distinguish &ldquo;index below
+<code>lo</code>&rdquo; from &ldquo;above <code>hi</code>&rdquo; without extra work, and it does not generalise to your stage-2 VM.
+Which matters more to you? Whichever you choose, your MIR should still contain the explicit
+<code>check.index</code> instruction — the back end decides how (or whether) to materialise it. That is exactly
+the division of labour the IR exists to provide.</div>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>11.1 (1)</b> Emit <code>.line</code> directives from MIR source positions, so a Pascal runtime error produces a
+JVM stack trace naming <code>hello.pas:17</code>. Half a day, and it transforms debugging for the rest of the
+project.<br>
+<b>11.2 (2)</b> Compute <code>.limit stack</code> two independent ways — tracked during emission, and by a separate
+abstract interpretation over the finished code — and assert they agree on every method in the corpus.
+Self-checking invariants like this are how compiler engineers stay sane.<br>
+<b>11.3 (1)</b> Write the Pascal program that distinguishes call-by-reference from copy-in/copy-out (pass
+the same variable as two <code>var</code> parameters, or pass a global that the callee also names). Then decide
+your <code>var</code>-parameter implementation with that program as the test.<br>
+<b>11.4 (2)</b> Implement sets as bitmasks and benchmark <code>c in ['a'..'z']</code> against a naive
+comparison chain. Then look at what HotSpot does to both.<br>
+<b>11.5 (2)</b> Run every generated class through ASM's <code>CheckClassAdapter</code> in your test suite, as a
+verifier you control, with better messages than the JVM's.
+</div>
+
+<div class="refs"><b>Reading</b>
+<span><b>Appel</b> <b>ch. 7 &sect;7.2 (Ex/Nx/Cx)</b> &mdash; read this twice; ch. 8 (basic blocks and traces &mdash; block ordering to minimise jumps); ch. 9 (instruction selection: maximal munch and dynamic programming) which you can skim for stage 1 and will need for stage 2; ch. 12 for how the pieces join.</span>
+<span><b>Dragon</b> &sect;6.6 (control-flow translation of boolean expressions &mdash; the same idea as Cx, presented as inherited attributes), &sect;6.7 (backpatching &mdash; the one-pass alternative), &sect;8.6 (a simple code generator), &sect;8.10 (Sethi&ndash;Ullman optimal expression code &mdash; note that it is about <i>register</i> machines and is therefore irrelevant to your JVM back end and highly relevant to your stage-2 register VM: a nice illustration of how target shape changes which theory applies).</span>
+<span><b>Wirth</b> ch. 9&ndash;11 &mdash; expressions, assignments, conditionals and boolean expressions on a RISC target. Compare his conditional-jump handling directly with Appel's Cx and note they are the same idea discovered twice.</span>
+<span><b>Pierce</b> ch. 19 (Featherweight Java) &mdash; useful background when you decide how records and frames become classes.</span>
+<span>Outside the books: the JVM Specification ch. 4 (class file format, and &sect;4.10 on verification) and ch. 6 (instruction set). Read &sect;4.10.1 vs &sect;4.10.2 to understand exactly what you are avoiding by emitting version 49.</span>
+</div>
+</section>
+
+<!-- ============================== PART 12 ============================== -->
+<section class="part">
+<div class="part-num">Part 12</div>
+<h2 class="part-title">Testing, conformance and measurement</h2>
+<div class="part-lede">A compiler is a program whose bugs are silent: it produces output that looks fine and is wrong. The testing strategy is therefore part of the architecture, not an afterthought.</div>
+
+<h3>Six kinds of test, in increasing order of value per hour</h3>
+<ol>
+<li><b>Unit tests</b> on the lexer and on small utilities. Cheap, necessary, low yield.</li>
+<li><b>Golden files.</b> <code>--emit=tokens|ast|mir</code> output committed next to each source file. A diff shows
+you exactly what a change did. The single best return on effort in the whole list, which is why
+Part 2 insists on a printable IR.</li>
+<li><b>Diagnostic fixtures.</b> Every reject program asserts the exact set of error codes and positions.
+Asserting &ldquo;no extra diagnostics&rdquo; is what keeps cascades under control.</li>
+<li><b>Execution tests.</b> Run the compiled program, compare stdout byte for byte with an expected file.</li>
+<li><b>Differential testing.</b> You have three executors (MIR interpreter, JVM back end, later your VM) and
+the outside world has Free Pascal (<code>fpc</code>) and GNU Pascal. Any disagreement is a bug in exactly one
+of them, and finding out which is always instructive.</li>
+<li><b>Metamorphic testing.</b> <code>-O0</code> and <code>-O2</code> must produce identical output. No expected values needed,
+so you can point it at <i>any</i> Pascal program, including ones you did not write. This is how you find
+optimiser bugs at scale.</li>
+</ol>
+
+<div class="box task"><span class="lbl">Tasks</span>
+<b>12.1 (2)</b> Fuzz the front end: feed it random bytes, random token sequences, and mutated valid
+programs. The invariant is not &ldquo;it compiles&rdquo; but &ldquo;it never throws an uncaught exception and never hangs&rdquo;.
+Jazzer or a hand-rolled mutator both work.<br>
+<b>12.2 (3)</b> Write a random <i>program</i> generator for a subset of Pascal that is guaranteed to terminate
+and whose expected output you can compute (e.g. arithmetic over bounded integers, loops with fixed
+trip counts). This is a Csmith-style oracle and it will find optimiser bugs you would never write a test
+for. Constraining generation so that programs are both interesting and well-defined is the hard,
+interesting part.<br>
+<b>12.3 (1)</b> Set up the benchmark harness before M11: five programs (a sieve, matrix multiply, n-body,
+a recursive one such as Ackermann or binary trees, and one set-heavy or string-heavy program), each
+run with proper JVM warm-up, reporting steady-state and first-run times separately. <b>Both numbers
+matter and they will tell different stories</b> — which is itself the introduction to everything in Part 13.<br>
+<b>12.4 (2)</b> Find a copy of the ISO 7185 conformance test suite (it circulates freely) and run it. Record
+your score. Watching that number go up is the most motivating progress metric this project offers.
+</div>
+
+<div class="box q"><span class="lbl">Questions</span>
+How do you test that an <i>error message</i> is good, as opposed to merely present? &mdash; What is the smallest
+program that distinguishes your compiler from a conforming one, and do you have it in the corpus? &mdash;
+When the MIR interpreter and the JVM back end disagree, what is your procedure for finding out which is
+wrong — and can you automate the bisection (over passes, over procedures, over statements)?</div>
+</section>
+
+<!-- ============================== PART 13 ============================== -->
+<section class="part">
+<div class="part-num">Part 13</div>
+<h2 class="part-title">Stage 2: your own bytecode and an adaptive VM</h2>
+<div class="part-lede">This is a second project of comparable size to the first. The point of the architecture in Part 2 is that it starts from a working, tested MIR rather than from nothing.</div>
+
+<h3>What &ldquo;dynamic adaptive&rdquo; actually buys a statically typed language</h3>
+<p>Be precise about this early, because it determines your whole design. Adaptive optimisation earns its
+keep in dynamic languages mostly by <i>discovering types</i> — inline caches, type feedback, speculative
+monomorphisation. Pascal hands you all the types up front. So what is left?</p>
+<ul>
+<li><b>Profile-directed layout and inlining</b>: which call sites are hot, which branches are taken, which
+loops are worth compiling at all. Available only at runtime.</li>
+<li><b>Value and range speculation</b>: this array is always length 100; this divisor is never zero; this
+subrange variable is always within bounds. These let you delete checks that static range analysis
+could not prove — with a guard and a deoptimisation path when the speculation fails.</li>
+<li><b>Escape analysis and scalar replacement</b> of your frame objects and <code>var</code>-parameter cells, using
+runtime knowledge of which calls actually happened.</li>
+<li><b>Tiering</b>: interpret cold code (fast to start, small memory), compile hot code (slow to produce,
+fast to run). Almost all of the practical benefit for a compiler like yours.</li>
+<li><b>On-stack replacement</b>: entering optimised code in the middle of a long-running loop. Without it,
+a program with one hot loop in <code>main</code> never benefits at all.</li>
+</ul>
+
+<h3>Design decisions, in the order you must take them</h3>
+<table>
+<tr><th style="width:36mm">Decision</th><th>Options, and the consideration that usually settles it</th></tr>
+<tr><td><b>Stack or register ISA</b></td>
+ <td><b>Register.</b> Your MIR is already three-address and in SSA form, so lowering is near-trivial;
+ register machines execute far fewer instructions per program, which matters enormously for an
+ interpreter where dispatch dominates; and every optimisation you already wrote applies directly.
+ A stack ISA is easier to verify and more compact — that is why the JVM chose it — but you already have a
+ stack back end. Read Shi et al., &ldquo;Virtual Machine Showdown: Stack Versus Registers&rdquo;, and the Lua 5.0
+ implementation paper before deciding against this.</td></tr>
+<tr><td><b>Encoding</b></td>
+ <td>Fixed 32-bit words (simple decoding, wasteful) or variable-length bytes (compact, branchy decoder).
+ Start fixed; you can change it later precisely because the assembler and disassembler are separate
+ programs.</td></tr>
+<tr><td><b>Implementation language</b></td>
+ <td>A serious fork in the road. Writing the VM in Kotlin keeps one toolchain and lets you reuse the
+ compiler's data structures — but you inherit the JVM's constraints exactly where they hurt an
+ interpreter most: no computed <code>goto</code>, no control over memory layout, no tail calls, and you would be
+ running a JIT on top of a JIT. Writing it in Rust or C gives you threaded dispatch, real memory layout
+ control, and honest measurements. <b>Recommendation:</b> prototype the interpreter in Kotlin to validate
+ the ISA (weeks), then rewrite in Rust/C if you want real performance work (months). Be honest about
+ which project you are doing.</td></tr>
+<tr><td><b>Memory management</b></td>
+ <td>You now own it. Appel ch. 13 is a complete short course: mark-sweep, reference counting, copying
+ collection, generational. A semispace copying collector is about 300 lines and is the right first
+ one. It requires <b>precise root finding</b>, which requires stack maps at safepoints — which is the
+ same machinery as deoptimisation metadata.</td></tr>
+<tr><td><b>Deoptimisation</b></td>
+ <td>The hardest single piece. To abandon optimised code mid-execution you must reconstruct the
+ interpreter's state (locals, stack, program counter) from the optimised frame. That means every
+ speculation point carries a map from interpreter state to optimised locations — and that inlining,
+ constant folding and register allocation must all maintain it. This is why Part 10 told you to attach
+ live-variable maps to trapping instructions from day one. Read H&ouml;lzle, Chambers and Ungar, &ldquo;Debugging
+ Optimized Code with Dynamic Deoptimization&rdquo; (1992), before you design the IR for tier 2.</td></tr>
+</table>
+
+<h4>A staged plan for stage 2</h4>
+<ol>
+<li><b>Specify the ISA</b> as a document, with an assembler and disassembler, before writing the VM.</li>
+<li><b>A verifier for your own bytecode.</b> You will be generating it; you will generate it wrongly;
+a verifier turns undebuggable crashes into error messages. (Now you understand why the JVM has one.)</li>
+<li><b>A plain interpreter</b> that runs the whole corpus, checked against the MIR interpreter and the
+JVM back end. Measure it. It will be perhaps 30&ndash;100&times; slower than the JVM. That is the baseline
+the rest of the work is measured against.</li>
+<li><b>Profiling counters</b> on back-edges and call sites; a tiering threshold; a report of what got hot.</li>
+<li><b>A baseline compiler</b> for hot methods — template-per-instruction, no optimisation, just removing
+dispatch overhead. Expect a large win for little cleverness. This is where most of your speed comes from.</li>
+<li><b>OSR</b>, so loops benefit.</li>
+<li><b>An optimising tier</b> reusing your MIR passes, plus speculation and deoptimisation.</li>
+<li><b>GC</b>, once allocation matters.</li>
+</ol>
+
+<div class="box q"><span class="lbl">Questions worth answering in writing before you start</span>
+What measurable goal makes stage 2 a success? (&ldquo;Faster than the interpreter&rdquo; is trivially achievable;
+&ldquo;faster than the JVM back end&rdquo; is very hard, because you are competing with two decades of HotSpot.
+&ldquo;I understand how HotSpot works because I built a small one&rdquo; is a perfectly good goal — but say so, or
+you will judge yourself by the wrong metric.) &mdash; Method-based JIT (HotSpot, V8) or tracing JIT (PyPy,
+LuaJIT)? Tracing is dramatically simpler to get working for loop-heavy code and is a much more unusual
+thing to have built. &mdash; What in your MIR would you change today, knowing stage 2 is coming? Change it
+now, while there is only one back end to update.</div>
+
+<div class="refs"><b>Reading</b>
+<span><b>Appel</b> ch. 9 (instruction selection &mdash; now it matters: maximal munch and dynamic-programming tiling for your register ISA), ch. 10&ndash;11 (liveness, graph-colouring register allocation &mdash; the chapters you skipped for the JVM), <b>ch. 13 (garbage collection)</b>, ch. 20&ndash;21 (scheduling, memory hierarchy) for context on what your baseline compiler is leaving on the table.</span>
+<span><b>Dragon</b> ch. 8 (code generation for real machines), ch. 10 (instruction-level parallelism) and ch. 12 (interprocedural analysis) become relevant here for the first time.</span>
+<span><b>Wirth</b> ch. 9 &mdash; his RISC machine is a fine model for a first bytecode ISA: simple, regular, and small enough to hold in your head.</span>
+<span>Outside the books: Ertl &amp; Gregg on efficient interpreters; Ierusalimschy et al. on Lua 5.0's register VM; H&ouml;lzle et al. on deoptimisation and on polymorphic inline caches; the Maxine, Jikes RVM and V8/TurboFan literature for how tiering is organised in practice.</span>
+</div>
+</section>
+
+<!-- ============================== APPENDIX A ============================== -->
+<section class="part">
+<div class="part-num">Appendix A</div>
+<h2 class="part-title">Decision log template</h2>
+<div class="part-lede">Keep one file per significant decision in <code>docs/decisions/</code>. Five minutes each; they are what make the project comprehensible to you in six months, and they are also the record of what you learned.</div>
+
+<pre><code># ADR-007: var parameters are passed as reference cells
+
+## Status
+Accepted, 2026-04-11
+
+## Context
+The JVM has no way to pass a reference to a local variable. Pascal's var
+parameters require call-by-reference semantics that are observable when
+the same variable is passed twice, or when the callee also reads a global
+that the caller passed.
+
+## Options considered
+1. Copy-in/copy-out          - fastest; wrong under aliasing
+2. One-element Java array    - one allocation per call; simple
+3. Generated Ref classes     - one allocation; typed; more generated code
+4. (array, index) pair       - no allocation for array elements; two params
+
+## Decision
+(3), with escape analysis so a var parameter that the callee only reads is
+passed by value. Task 11.3's program is the regression test.
+
+## Consequences
+- MIR needs an explicit Cell type; the DVM back end must implement it too.
+- Scalar replacement in the optimiser can undo the boxing; see Part 10.
+- DEVIATIONS.md: none - this is conforming behaviour.</code></pre>
+
+<p class="small">Decisions worth an entry, at minimum: dialect and feature triage; short-circuit or not;
+overflow policy; string representation; array lower-bound handling; <code>var</code>-parameter representation;
+nested-procedure strategy; class-file version; SSA construction algorithm; pass order; stage-2 ISA shape.</p>
+</section>
+
+<!-- ============================== APPENDIX B ============================== -->
+<section class="part">
+<div class="part-num">Appendix B</div>
+<h2 class="part-title">Suggested repository layout</h2>
+<div class="part-lede">Concrete, for your existing Kotlin/Gradle setup. The module boundaries are the architecture; make Gradle enforce them.</div>
+
+<pre><code>settings.gradle.kts
+  include(":util", ":frontend", ":mir", ":backend-jasmin", ":runtime", ":driver", ":conformance")
+  // stage 2 later:  ":backend-dvm", ":dvm"
+
+util/         spans, diagnostics, source map, interning, CLI plumbing
+frontend/     lexer, parser, AST, symbols, types, sema, HIR, HIR->MIR lowering
+              depends on :util, :mir            -- NOT on any backend
+mir/          MIR data types, printer, parser, verifier, interpreter, passes
+              depends on :util                  -- knows no target
+backend-jasmin/ MIR -> .j text, slot allocation, stack limits, class emission
+              depends on :util, :mir
+runtime/      pascal.rt.*  : Io, Sets, Strings, RangeError, Frames
+              plain Kotlin/Java, shipped with compiled programs
+driver/       CLI, --emit=, pass pipeline, backend selection
+              depends on everything
+conformance/  the corpus + harnesses: golden, diagnostics, execution,
+              differential, metamorphic, benchmarks
+
+docs/
+  roadmap.(html|pdf)      this document
+  DEVIATIONS.md           where you differ from ISO 7185, and why
+  decisions/ADR-*.md      one file per decision (Appendix A)
+  grammar.ebnf            the single source of truth for the syntax
+  mir.md                  the MIR instruction reference
+
+testSources/              (rename from testSourses)
+  accept/                 must compile and run, with expected stdout
+  reject/                 must fail, with expected diagnostics
+  bench/                  M10 benchmark programs</code></pre>
+
+<div class="box note"><span class="lbl">Two build details for your setup</span>
+Your Gradle build targets JVM toolchain 18 — that is the JVM your <i>compiler</i> runs on and is unrelated to
+the class-file version your compiler <i>emits</i> (49.0, per Part 11). Keep the two straight in your head and
+in your build file comments; conflating them is a genuinely confusing afternoon.<br>
+Second: add the <code>jasmin</code> assembler invocation as a Gradle task or shell out to it from the driver, but
+keep <code>.j</code> generation and assembly as separate steps — you want the <code>.j</code> text on disk for golden
+tests and for reading with your own eyes.</div>
+
+<h4>The first two weeks, concretely</h4>
+<ol>
+<li>Rename <code>testSourses/</code>, split it into <code>accept/</code> and <code>reject/</code>, and write down why
+    <code>test0.pas</code> is in whichever bucket you chose (Part 1).</li>
+<li>Create the modules above, empty, with the dependency rules in place. Verify
+    <code>:frontend</code> compiles with <code>:backend-jasmin</code> removed from <code>settings.gradle.kts</code>.</li>
+<li>Commit <code>grammar.ebnf</code> — you already have it on paper; making it a file the build can read is
+    what enables Task 6.1.</li>
+<li>Spans and the diagnostics engine (Part 4), with the caret renderer.</li>
+<li>The M1 vertical slice: five tokens, one statement, one MIR instruction, one method emitted, one
+    <code>42</code> printed by a real JVM. Nothing general, everything connected.</li>
+</ol>
+</section>
+
+<!-- ============================== APPENDIX C ============================== -->
+<section class="part">
+<div class="part-num">Appendix C</div>
+<h2 class="part-title">Cross-reference matrix</h2>
+<div class="part-lede">Where to look when you are stuck on a specific thing. Chapter numbers: Wirth 1996; Dragon 2nd ed.; Appel <i>Modern Compiler Implementation in Java</i> 2nd ed.; Pierce <i>TAPL</i>.</div>
+
+<table class="tight">
+<tr><th style="width:42mm">Topic</th><th style="width:22mm">Wirth</th><th style="width:30mm">Dragon</th><th style="width:34mm">Appel</th><th>Pierce</th></tr>
+<tr><td>Whole-compiler overview</td><td>1&ndash;2, 6&ndash;7</td><td>ch. 1&ndash;2</td><td>ch. 1, 12</td><td>&mdash;</td></tr>
+<tr><td>Regular languages, scanning</td><td>3</td><td>ch. 3</td><td>ch. 2</td><td>&mdash;</td></tr>
+<tr><td>LL(1), FIRST/FOLLOW</td><td>4, 7</td><td>&sect;4.4</td><td>&sect;3.2</td><td>&mdash;</td></tr>
+<tr><td>Error recovery</td><td>7</td><td>&sect;4.1.3&ndash;4, &sect;4.4.5</td><td>&sect;3.4</td><td>&mdash;</td></tr>
+<tr><td>Abstract syntax</td><td>5</td><td>&sect;2.8, ch. 5</td><td>ch. 4</td><td>ch. 3 (inductive defs)</td></tr>
+<tr><td>Symbol tables, scopes</td><td>8</td><td>&sect;2.7, &sect;7.1</td><td>ch. 5</td><td>ch. 6 (nameless terms)</td></tr>
+<tr><td>Type checking</td><td>8</td><td>&sect;6.3&ndash;6.5</td><td>ch. 5</td><td><b>ch. 8&ndash;11, 13</b></td></tr>
+<tr><td>Subtyping / coercion</td><td>&mdash;</td><td>&sect;6.5</td><td>&mdash;</td><td>ch. 15&ndash;17</td></tr>
+<tr><td>References, pointers, state</td><td>13&ndash;14</td><td>&sect;7.4</td><td>&mdash;</td><td><b>ch. 13</b></td></tr>
+<tr><td>Runtime errors / exceptions</td><td>&mdash;</td><td>&sect;7.4</td><td>&mdash;</td><td>ch. 14</td></tr>
+<tr><td>Activation records, static link</td><td><b>12</b></td><td><b>&sect;7.1&ndash;7.3</b></td><td><b>ch. 6</b></td><td>&mdash;</td></tr>
+<tr><td>Closures, lambda lifting</td><td>&mdash;</td><td>&mdash;</td><td>ch. 15</td><td>ch. 5&ndash;7</td></tr>
+<tr><td>IR design</td><td>&mdash;</td><td>&sect;6.1&ndash;6.2</td><td>ch. 7</td><td>&mdash;</td></tr>
+<tr><td>Boolean expressions, jumps</td><td>11</td><td><b>&sect;6.6&ndash;6.7</b></td><td><b>&sect;7.2 (Cx)</b></td><td>&mdash;</td></tr>
+<tr><td>Basic blocks, CFG, traces</td><td>&mdash;</td><td>&sect;8.4&ndash;8.5</td><td>ch. 8</td><td>&mdash;</td></tr>
+<tr><td>Instruction selection</td><td>9&ndash;10</td><td>&sect;8.6&ndash;8.9</td><td>ch. 9</td><td>&mdash;</td></tr>
+<tr><td>Expression code, Sethi&ndash;Ullman</td><td>10</td><td>&sect;8.10</td><td>&sect;9.1</td><td>&mdash;</td></tr>
+<tr><td>Liveness, register allocation</td><td>&mdash;</td><td>&sect;8.8</td><td>ch. 10&ndash;11</td><td>&mdash;</td></tr>
+<tr><td>Data-flow analysis</td><td>&mdash;</td><td>&sect;9.2&ndash;9.3</td><td>ch. 17</td><td>&mdash;</td></tr>
+<tr><td>SSA</td><td>&mdash;</td><td>&sect;6.2.4, &sect;9.5</td><td><b>ch. 19</b></td><td>&mdash;</td></tr>
+<tr><td>Loop optimisation</td><td>16</td><td>&sect;9.6&ndash;9.7</td><td>ch. 18</td><td>&mdash;</td></tr>
+<tr><td>Garbage collection</td><td>&mdash;</td><td>&sect;7.5&ndash;7.8</td><td><b>ch. 13</b></td><td>&mdash;</td></tr>
+<tr><td>Objects / class layout</td><td>&mdash;</td><td>&sect;6.?, ch. 7</td><td>ch. 14</td><td>ch. 18&ndash;19</td></tr>
+<tr><td>Separate compilation, modules</td><td>15</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+</table>
+</section>
+
+<!-- ============================== APPENDIX D ============================== -->
+<section class="part">
+<div class="part-num">Appendix D</div>
+<h2 class="part-title">Beyond the four books</h2>
+<div class="part-lede">Short list. Every item is here because it answers a question the four books leave open for <i>this specific project</i>.</div>
+
+<table>
+<tr><th style="width:62mm">Source</th><th>Why, and when</th></tr>
+<tr><td>ISO/IEC 7185:1990, <i>Standard Pascal</i></td><td>Your specification. Freely available. Part 1 onwards — read the sections on assignment compatibility and on <code>for</code> statements before you implement them.</td></tr>
+<tr><td>Cooper &amp; Torczon, <i>Engineering a Compiler</i></td><td>The best single complement to your four: more practical than Dragon, more thorough than Appel on IR and optimisation. If you buy one more book, this one.</td></tr>
+<tr><td>Muchnick, <i>Advanced Compiler Design and Implementation</i></td><td>The reference for optimiser details — every pass in Part 10, in full, with the corner cases. Reference only; unreadable end to end.</td></tr>
+<tr><td>Cytron et al. (1991), <i>Efficiently Computing SSA Form&hellip;</i></td><td>The dominance-frontier algorithm. Part 10, Task 10.1.</td></tr>
+<tr><td>Braun et al. (2013), <i>Simple and Efficient Construction of SSA Form</i></td><td>SSA without dominance frontiers; what you will actually ship. Part 10.</td></tr>
+<tr><td>Wegman &amp; Zadeck (1991), <i>Constant Propagation with Conditional Branches</i></td><td>SCCP. Part 10, Task 10.2.</td></tr>
+<tr><td>Cooper, Harvey &amp; Kennedy, <i>A Simple, Fast Dominance Algorithm</i></td><td>Twenty lines, fast in practice. Part 10.</td></tr>
+<tr><td>Lindholm et al., <i>The Java Virtual Machine Specification</i>, ch. 4 &amp; 6</td><td>Class file format, the verifier (&sect;4.10), the instruction set. Part 11 — the authority when Jasmin and the JVM disagree with you.</td></tr>
+<tr><td>Jasmin user guide; the ASM library guide</td><td>Part 11. Read ASM's guide even if you stay on Jasmin: it explains the frame computation you are avoiding.</td></tr>
+<tr><td>H&ouml;lzle, Chambers &amp; Ungar (1992), <i>Debugging Optimized Code with Dynamic Deoptimization</i></td><td>The paper that makes adaptive optimisation possible. Read <i>before</i> designing stage 2's optimised tier.</td></tr>
+<tr><td>H&ouml;lzle &amp; Ungar, <i>Optimizing Dynamically-Typed OO Languages with Polymorphic Inline Caches</i></td><td>Where &ldquo;adaptive&rdquo; came from; useful for understanding what does <i>not</i> apply to Pascal.</td></tr>
+<tr><td>Ertl &amp; Gregg, <i>The Structure and Performance of Efficient Interpreters</i></td><td>Dispatch techniques and why your language choice for the VM matters. Part 13.</td></tr>
+<tr><td>Ierusalimschy, de Figueiredo &amp; Celes, <i>The Implementation of Lua 5.0</i></td><td>The clearest short description of a register VM in existence. Part 13.</td></tr>
+<tr><td>Shi et al., <i>Virtual Machine Showdown: Stack Versus Registers</i></td><td>The evidence for the stack/register decision. Part 13.</td></tr>
+<tr><td>Bolz et al., <i>Tracing the Meta-Level</i> (PyPy)</td><td>If you choose a tracing JIT over a method JIT. Part 13.</td></tr>
+<tr><td>Wirth, <i>Algorithms + Data Structures = Programs</i></td><td>Chapter 5 is a Pascal compiler for PL/0, by Pascal's author. Read it for the pleasure and for the sense of scale.</td></tr>
+</table>
+</section>
+
+<!-- ============================== APPENDIX E ============================== -->
+<section class="part">
+<div class="part-num">Appendix E</div>
+<h2 class="part-title">Risk register and anti-patterns</h2>
+<div class="part-lede">Every one of these has killed a student compiler. Most of them look like good engineering at the time.</div>
+
+<table>
+<tr><th style="width:52mm">Anti-pattern</th><th>Why it is tempting</th><th style="width:48mm">What to do instead</th></tr>
+<tr><td><b>Perfecting phases in order</b></td><td>It feels orderly, and the lexer is fun.</td><td>M1 vertical slice first. Always have something that runs.</td></tr>
+<tr><td><b>A general IR before a second consumer exists</b></td><td>&ldquo;I'll need it for the VM.&rdquo;</td><td>Design MIR for the JVM back end and the interpreter; revisit when the second back end is real. Keeping it printable is the cheap insurance.</td></tr>
+<tr><td><b>Optimising before measuring</b></td><td>Optimisation is the interesting part.</td><td>M10 before M11. Write down the zeros as well as the wins.</td></tr>
+<tr><td><b>Silent semantic deviations</b></td><td>Each one is individually trivial.</td><td><code>DEVIATIONS.md</code>, updated the same hour you deviate.</td></tr>
+<tr><td><b>A mutable AST decorated in place</b></td><td>It is the obvious thing, and every textbook does it.</td><td>Side tables keyed by node id; immutable nodes. You can then re-run a phase, or run two.</td></tr>
+<tr><td><b><code>Map&lt;String, Any&gt;</code> symbol tables</b></td><td>Fast to write in a dynamic style.</td><td>Sealed <code>Symbol</code> hierarchy; the type checker's bugs become compile errors in <i>your</i> compiler.</td></tr>
+<tr><td><b>Error messages as strings at the throw site</b></td><td>Quickest possible thing.</td><td>Codes + structured diagnostics from Part 4. Retrofitting is a day of tedium per phase.</td></tr>
+<tr><td><b>Implicit safety checks</b></td><td>They belong to the <code>store</code>, surely.</td><td>Explicit check instructions in MIR, or the optimiser can never remove them.</td></tr>
+<tr><td><b>Starting stage 2 before stage 1 is conformant</b></td><td>The VM is the exciting part.</td><td>M8 first. A VM for a language whose semantics you have not pinned down has no specification to be correct against.</td></tr>
+<tr><td><b>Non-determinism in output</b></td><td><code>HashMap</code> is the default.</td><td><code>LinkedHashMap</code>, sorted diagnostic output. Otherwise golden tests fail on other machines and you will blame the tests.</td></tr>
+<tr><td><b>No <code>--emit</code> flags</b></td><td>Debugger-driven development feels sufficient.</td><td>Every phase inspectable from the command line. It is how you will debug for the next two years.</td></tr>
+</table>
+
+<hr>
+
+<h3>A closing thought on what you are actually building</h3>
+<p>You have chosen an unusually good project. A Pascal front end is small enough to finish, and Pascal's
+type system is rich enough (subranges, sets, name equivalence, nested procedures, <code>var</code> parameters)
+that nothing about it is trivial. The JVM back end forces you to confront a target that is
+<i>almost</i> but not quite a good fit — non-zero array bases, no static links, no references to locals,
+a verifier with opinions — and every one of those mismatches is a lesson about what an IR is <i>for</i>.
+And the second stage, where you write the machine as well as the compiler, closes the loop: you will
+have built both sides of an interface that your four books mostly present as given.</p>
+<p>The thing that will determine whether you finish is not any of the technical decisions in this document.
+It is whether you always have a compiler that works on <i>some</i> language, and whether you can see it
+working. Ship the vertical slice in week two, keep the corpus green, measure before you optimise, and
+write down every decision as you make it. The rest is chapters.</p>
+</section>
+
+</body>
+</html>
