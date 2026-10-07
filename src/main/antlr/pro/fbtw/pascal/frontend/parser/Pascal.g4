@@ -1,4 +1,4 @@
-grammar pascal;
+grammar Pascal;
 
 options { caseInsensitive = true; }
 block : label_decl? const_decl? type_decl? var_decl? proc_fun_decl? statement_decl;
