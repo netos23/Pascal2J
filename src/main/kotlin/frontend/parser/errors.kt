@@ -60,11 +60,11 @@ data class SyntaxError(
 
         /** Reads the notice contained in [str], failing if there is none. */
         fun parse(str: String): SyntaxError =
-            parseOrNull(str) ?: throw IllegalArgumentException("not a syntax error: $str")
+            parseOrNull(str) ?: throw IllegalArgumentException("not a syntax error or malformed syntax error: $str")
 
         /**
          * Reads the notice contained in [str], or returns null if [str] carries no notice at all.
-         * A notice that is present but malformed is an error rather than a null.
+         * A notice that is present but malformed is a null.
          *
          * A notice names the code, the message and the line and column of the error,
          * so the offsets of the resulting [span] are [UNKNOWN_OFFSET].
@@ -72,12 +72,20 @@ data class SyntaxError(
         fun parseOrNull(str: String): SyntaxError? {
             if (MARKER !in str) return null
 
-            val match = NOTICE.find(str) ?: throw IllegalArgumentException("malformed syntax error: $str")
+            val match = NOTICE.find(str) ?: return null
             val (id, message, line, column) = match.destructured
             val code = SyntaxErrorCode.entries.find { it.id == id.toInt() }
-                ?: throw IllegalArgumentException("unknown syntax error code: $str")
+                ?: return null
 
-            return SyntaxError(code, message, Span(UNKNOWN_OFFSET, UNKNOWN_OFFSET, line.toInt(), column.toInt()))
+            return line.toIntOrNull()?.let { line ->
+                column.toIntOrNull()?.let { column ->
+                    SyntaxError(
+                        code, message,
+                        Span(UNKNOWN_OFFSET, UNKNOWN_OFFSET, line, column)
+                    )
+                }
+            }
+
         }
     }
 }
