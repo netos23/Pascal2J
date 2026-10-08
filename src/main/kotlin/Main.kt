@@ -1,16 +1,21 @@
-package pro.fbtw
+package pro.fbtw.pascal
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-fun main() {
-    val name = "Kotlin"
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    println("Hello, " + name + "!")
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
+import pro.fbtw.pascal.frontend.parser.PascalLexer
+import pro.fbtw.pascal.frontend.parser.PascalParser
+import java.nio.file.Path
 
-    for (i in 1..5) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        println("i = $i")
+fun main(args: Array<String>) {
+    val file = Path.of(args.first())
+
+    val lexer = PascalLexer(CharStreams.fromPath(file))
+    val tokens = CommonTokenStream(lexer)
+    val parser = PascalParser(tokens)
+
+    val tree: PascalParser.ProgramContext = parser.program()   // start rule
+
+    if (parser.numberOfSyntaxErrors == 0) {
+        println(tree.toStringTree(parser))
     }
 }
