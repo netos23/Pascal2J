@@ -7,6 +7,7 @@
 program DeclarationPartsInTheWrongOrder(output);
 var
    i : index;
+{! !!SyntaxError[E2003]: unexpected 'const' at 11:1!! !}
 const
    limit = 10;
 type

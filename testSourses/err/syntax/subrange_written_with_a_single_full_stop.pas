@@ -4,6 +4,7 @@
    Expected diagnostic: subrange symbol expected. *)
 program SubrangeWrittenWithASingleFullStop(output);
 type
+   {! !!SyntaxError[E2003]: unexpected ';' at 8:15!! !}
    digit = 0.9;
 var
    d : digit;

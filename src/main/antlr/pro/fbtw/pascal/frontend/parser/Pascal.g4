@@ -606,5 +606,12 @@ DIGIT : [0-9];
 WS          :   ( ' ' | '\t' | '\n' | '\r' )+ -> skip ;
 COMMENT
 	: ('{' | '(*') .*? ('}' | '*)')
+	-> channel(HIDDEN)
+	;
+
+// A commentary that reaches the end of the source. Without this rule '(*' falls back to '(' and '*'.
+UNTERMINATED_COMMENT
+	: ('{' | '(*') (~[*}] | '*'+ ~[*)}])* '*'* EOF
+	{ notifyListeners(new LexerNoViableAltException(this, _input, _tokenStartCharIndex, null)); }
 	-> skip
 	;

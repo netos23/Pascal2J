@@ -3,6 +3,7 @@
    and a program cannot be nested inside another program.
    Expected diagnostic: procedure or function expected, program found. *)
 program NestedProgramDeclaration(output);
+{! !!SyntaxError[E2003]: unexpected 'program' at 7:1!! !}
 program Inner(output);
 begin
    writeln('inner')

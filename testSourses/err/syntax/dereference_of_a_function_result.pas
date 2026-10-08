@@ -18,6 +18,8 @@ begin
    MakeCell := q
 end;
 begin
+   {! !!SyntaxError[E2003]: unexpected '^' at 23:24!! !}
+   {! !!SyntaxError[E2003]: unexpected 'value' at 23:26!! !}
    total := MakeCell(7)^.value;
    writeln(total)
 end.

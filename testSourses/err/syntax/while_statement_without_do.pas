@@ -7,6 +7,7 @@ var
 begin
    i := 0;
    while i < 10
+      {! !!SyntaxError[E2001]: missing 'do' before 'i' at 11:7!! !}
       i := i + 1;
    writeln(i)
 end.

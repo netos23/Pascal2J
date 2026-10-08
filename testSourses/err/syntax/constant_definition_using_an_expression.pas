@@ -6,6 +6,7 @@
 program ConstantDefinitionUsingAnExpression(output);
 const
    base = 10;
+   {! !!SyntaxError[E2002]: extraneous '*' at 10:19!! !}
    doubled = base * 2;
 begin
    writeln(doubled)

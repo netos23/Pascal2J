@@ -8,6 +8,7 @@ program ForStatementUsingAssignmentToTheFinalValue(output);
 var
    i : integer;
 begin
+   {! !!SyntaxError[E2003]: unexpected ':=' at 12:15!! !}
    for i := 1 := 10 do
       writeln(i)
 end.

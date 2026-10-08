@@ -10,6 +10,7 @@ begin
    i := 1;
    if i = 1 then
       writeln('one');
+   {! !!SyntaxError[E2003]: unexpected 'else' at 14:4!! !}
    else
       writeln('not one')
 end.

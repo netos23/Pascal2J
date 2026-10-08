@@ -12,35 +12,50 @@ import kotlin.test.assertTrue
 
 class ParserConformanceTest {
 
-    private fun errorsOf(file: Path): List<SyntaxError> {
-        val lexerListener = CollectingErrorListener(::LexerSyntaxError)
-        val parserListener = CollectingErrorListener(::ParserSyntaxError)
+    private fun errorsOf(file: Path): Pair<List<SyntaxError>, List<SyntaxError>> {
+        val listener = CollectingErrorListener()
         val lexer = PascalLexer(CharStreams.fromPath(file)).apply {
-            removeErrorListeners(); addErrorListener(lexerListener)
+            removeErrorListeners(); addErrorListener(listener)
         }
-        val parser = PascalParser(CommonTokenStream(lexer)).apply {
-            removeErrorListeners(); addErrorListener(parserListener)
+
+        val commonTokenStream = CommonTokenStream(lexer)
+        commonTokenStream.fill()
+        val expectedErrors = commonTokenStream.tokens.filter { it.type == PascalLexer.COMMENT }
+            .mapNotNull { SyntaxError.parseOrNull(it.text) }
+
+
+        val parser = PascalParser(commonTokenStream).apply {
+            removeErrorListeners(); addErrorListener(listener)
         }
         parser.program()
-        return lexerListener.errors + parserListener.errors
+
+        return listener.errors to expectedErrors
     }
 
-    private fun sources(dir: String): List<Path> =
-        Files.walk(Path.of("testSourses", dir)).use { s ->
-            s.filter { it.toString().endsWith(".pas") }.toList()
-        }
+    // A notice carries no offsets, and its message is a description, so errors are matched by code and position.
+    private fun List<SyntaxError>.places(): List<Triple<SyntaxErrorCode, Int, Int>> =
+        map { Triple(it.code, it.span.line, it.span.column) }.sortedWith(compareBy({ it.second }, { it.third }, { it.first }))
+
+    private fun sources(dir: String): List<Path> = Files.walk(Path.of("testSourses", dir)).use { s ->
+        s.filter { it.toString().endsWith(".pas") }.toList()
+    }
 
     @Test
     fun `conforming lexer consumes sources cleanly`() {
         for (file in sources("ok")) {
-            assertEquals(emptyList(), errorsOf(file), "unexpected errors in $file")
+            val (actual, expected) = errorsOf(file)
+
+            assertEquals(emptyList(), expected, "Unrelated errors in $file")
+            assertEquals(emptyList(), actual, "unexpected errors in $file")
         }
     }
 
     @Test
     fun `syntax errors are reported`() {
         for (file in sources("err/syntax") + sources("err/lexical")) {
-            assertTrue(errorsOf(file).isNotEmpty(), "expected an error in $file")
+            val (actual, expected) = errorsOf(file)
+            assertTrue(expected.isNotEmpty(), "no error is announced in $file")
+            assertEquals(expected.places(), actual.places(), "wrong errors in $file")
         }
     }
 }

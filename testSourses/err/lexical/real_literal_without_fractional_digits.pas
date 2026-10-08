@@ -8,6 +8,8 @@ program RealLiteralWithoutFractionalDigits(output);
 var
    x : real;
 begin
+   {! !!SyntaxError[E2001]: missing 'end' before '.' at 13:10!! !}
+   {! !!SyntaxError[E2003]: unexpected ';' at 13:11!! !}
    x := 1.;
    writeln(x)
 end.

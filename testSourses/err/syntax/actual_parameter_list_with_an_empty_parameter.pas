@@ -8,5 +8,6 @@ begin
    writeln(a, b, c)
 end;
 begin
+   {! !!SyntaxError[E2004]: invalid syntax near ',' at 12:14!! !}
    Report(1, , 3)
 end.

@@ -5,6 +5,7 @@
 program TwoVariableDeclarationPartsInOneBlock(output);
 var
    i : integer;
+{! !!SyntaxError[E2003]: unexpected 'var' at 9:1!! !}
 var
    j : integer;
 begin

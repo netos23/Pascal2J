@@ -7,6 +7,7 @@ program UnterminatedCharacterString(output);
 var
    s : packed array [1..5] of char;
 begin
+   {! !!SyntaxError[E1002]: unterminated character-string at 11:9!! !}
    s := 'abcde;
    writeln(s)
 end.

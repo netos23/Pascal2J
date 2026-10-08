@@ -5,6 +5,9 @@
    Expected diagnostic: unterminated character-string. *)
 program CharacterStringSpanningALineBreak(output);
 begin
+   {! !!SyntaxError[E1002]: unterminated character-string at 9:12!! !}
    writeln('this string is broken
+            {! !!SyntaxError[E2004]: invalid syntax near 'two' at 12:20!! !}
+            {! !!SyntaxError[E1002]: unterminated character-string at 12:29!! !}
             across two lines')
 end.

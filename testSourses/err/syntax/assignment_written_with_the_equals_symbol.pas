@@ -7,6 +7,7 @@ program AssignmentWrittenWithTheEqualsSymbol(output);
 var
    i : integer;
 begin
+   {! !!SyntaxError[E2003]: unexpected '=' at 11:6!! !}
    i = 1;
    writeln(i)
 end.

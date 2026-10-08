@@ -9,6 +9,7 @@ begin
    i := 3;
    case i of
       1 : writeln('one');
+      {! !!SyntaxError[E2003]: unexpected '..' at 13:8!! !}
       2..5 : writeln('two to five')
    end
 end.

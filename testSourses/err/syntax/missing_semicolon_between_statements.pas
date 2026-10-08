@@ -6,6 +6,7 @@ var
    i, j : integer;
 begin
    i := 1
+   {! !!SyntaxError[E2003]: unexpected 'j' at 10:4!! !}
    j := 2;
    writeln(i, j)
 end.

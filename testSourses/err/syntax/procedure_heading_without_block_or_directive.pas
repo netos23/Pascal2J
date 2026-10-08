@@ -12,4 +12,5 @@ begin
 end;
 begin
    Another
+{! !!SyntaxError[E2003]: unexpected '.' at 16:4!! !}
 end.

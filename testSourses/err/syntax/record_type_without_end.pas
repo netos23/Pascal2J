@@ -5,6 +5,7 @@ program RecordTypeWithoutEnd(output);
 type
    point = record
               x, y : real;
+{! !!SyntaxError[E2003]: unexpected 'var' at 9:1!! !}
 var
    p : point;
 begin

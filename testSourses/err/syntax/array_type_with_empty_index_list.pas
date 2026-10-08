@@ -3,6 +3,7 @@
    Expected diagnostic: ordinal-type expected in the index-type list. *)
 program ArrayTypeWithEmptyIndexList(output);
 type
+   {! !!SyntaxError[E2003]: unexpected ']' at 7:20!! !}
    vector = array [] of integer;
 var
    v : vector;

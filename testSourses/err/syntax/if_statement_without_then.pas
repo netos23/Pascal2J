@@ -7,5 +7,6 @@ var
 begin
    i := 1;
    if i = 1
+      {! !!SyntaxError[E2001]: missing 'then' before 'writeln' at 11:7!! !}
       writeln('one')
 end.

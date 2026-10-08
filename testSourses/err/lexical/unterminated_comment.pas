@@ -8,6 +8,8 @@ var
    i : integer;
 begin
    i := 1;
+   {! !!SyntaxError[E1003]: unterminated commentary at 13:4!! !}
+   {! !!SyntaxError[E2003]: unexpected end of file at 16:1!! !}
    (* this commentary is never closed and runs to the end of the file
    writeln(i)
 end.

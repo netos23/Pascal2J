@@ -4,6 +4,7 @@
    Expected diagnostic: of expected. *)
 program ArrayTypeWithoutOf(output);
 type
+   {! !!SyntaxError[E2001]: missing 'of' before 'integer' at 8:27!! !}
    vector = array [1..10] integer;
 var
    v : vector;

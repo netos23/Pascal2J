@@ -7,6 +7,7 @@ var
 begin
    i := 1;
    case i
+      {! !!SyntaxError[E2001]: missing 'of' before '1' at 11:7!! !}
       1 : writeln('one');
       2 : writeln('two')
    end

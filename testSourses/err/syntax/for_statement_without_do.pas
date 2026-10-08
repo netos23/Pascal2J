@@ -6,5 +6,6 @@ var
    i : integer;
 begin
    for i := 1 to 10
+      {! !!SyntaxError[E2001]: missing 'do' before 'writeln' at 10:7!! !}
       writeln(i)
 end.

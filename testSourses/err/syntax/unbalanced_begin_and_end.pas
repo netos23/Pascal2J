@@ -11,4 +11,5 @@ begin
    begin
       i := i + 1;
       writeln(i)
+{! !!SyntaxError[E2001]: missing 'end' before '.' at 15:4!! !}
 end.

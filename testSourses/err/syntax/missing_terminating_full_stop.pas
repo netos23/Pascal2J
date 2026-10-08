@@ -7,4 +7,5 @@ var
 begin
    i := 0;
    writeln(i)
+{! !!SyntaxError[E2001]: missing '.' before end of file at 12:1!! !}
 end

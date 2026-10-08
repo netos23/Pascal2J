@@ -9,5 +9,6 @@ begin
    writeln('called')
 end;
 begin
+   {! !!SyntaxError[E2004]: invalid syntax near ')' at 13:11!! !}
    Report()
 end.

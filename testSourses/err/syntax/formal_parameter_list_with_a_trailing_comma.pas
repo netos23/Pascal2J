@@ -3,9 +3,11 @@
    separator, and the sections themselves are separated by semicolons.
    Expected diagnostic: identifier expected after the comma. *)
 program FormalParameterListWithATrailingComma(output);
+{! !!SyntaxError[E2004]: invalid syntax near ':' at 7:24!! !}
 procedure Report(a, b, : integer);
 begin
    writeln(a, b)
+{! !!SyntaxError[E2003]: unexpected ';' at 11:4!! !}
 end;
 begin
    Report(1, 2)

@@ -8,6 +8,7 @@ var
    p : point;
 begin
    with p
+      {! !!SyntaxError[E2001]: missing 'do' before 'begin' at 12:7!! !}
       begin
          x := 0.0;
          y := 0.0

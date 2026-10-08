@@ -9,7 +9,9 @@ type
                case s : sex of
                   male : (bearded : Boolean);
                   female : (programmer : Boolean);
+               {! !!SyntaxError[E2001]: missing '(' before 'integer' at 13:22!! !}
                age : integer
+            {! !!SyntaxError[E2003]: unexpected 'end' at 15:13!! !}
             end;
 var
    p : person;
